@@ -1,42 +1,109 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-//code from "THIRD PERSON MOVEMENT in Unity" by brackeys
+//Movement code courtesy of Ketra Games
 
 public class PlayerController : MonoBehaviour
 {
     /*******************Movement******************/
     //-------------public-------------
-    public float speed;
+    public float speed_run;
+    public float speed_jump;
+    public float speed_rotation;
     
     //------------private-------------
     CharacterController characterController;
     Transform cameraTransform;
-    float turnVelocity;
+    Animator animator;
+    float speed_y;
+    bool inAir;
+    float jumpTimer;
+    float inAirTimer;
 
     // Start is called before the first frame update
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
-        cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
+        Init();
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Get input
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0.0f, vertical).normalized; 
 
-        if(direction != Vector3.zero)
+        //Set direction
+        Vector3 moveDirection = new Vector3(horizontal, 0.0f, vertical);
+        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_run;
+        moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
+        moveDirection.Normalize();
+        Vector3 velocity = moveDirection * magnitude;
+        velocity.y = speed_y;
+        Vector2 velocity_run = new Vector2(velocity.x, velocity.z);
+
+        //run
+        if (moveDirection != Vector3.zero)
         {
-            float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
-            float angle_smoothing = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref turnVelocity, 0.1f);
-            transform.rotation = Quaternion.Euler(0.0f, angle_smoothing, 0.0f);
+            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_rotation * Time.deltaTime);
+        }
 
-            Vector3 moveDirection = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-            characterController.Move(moveDirection.normalized * speed * Time.deltaTime);
+
+        //jump or fall
+        if (characterController.isGrounded)
+        {
+            inAirTimer = 0.0f;
+
+            if (inAir && jumpTimer < 0.0f)
+            {
+                jumpTimer = 0.5f;
+                inAir = false;
+            }
+        }
+        else
+        {
+            speed_y += Physics.gravity.y * Time.deltaTime;
+
+            inAirTimer -= Time.deltaTime;
+            jumpTimer -= Time.deltaTime;
+
+            //player is falling
+            if(inAirTimer < -0.4f)
+            {
+                inAir = true;
+                Debug.Log(inAirTimer);
+
+            }
+        }
+
+        //set animator
+        animator.SetFloat("runVelocity", velocity_run.magnitude);
+        animator.SetBool("inAir", inAir);
+
+        //apply movement
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void Init()
+    {
+        characterController = GetComponent<CharacterController>();
+        cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
+        animator = GetComponent<Animator>();
+        speed_y = 0.0f;
+        inAir = false;
+        inAirTimer = 0.0f;
+        jumpTimer = 0.5f;
+
+    }
+
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if(context.performed && characterController.isGrounded)
+        {
+            speed_y = speed_jump;
+            inAirTimer = 0.0f;
+            inAir = true;
         }
     }
 }
