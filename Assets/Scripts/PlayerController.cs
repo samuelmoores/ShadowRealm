@@ -8,7 +8,10 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector] public enum State { Idle, Run, Jump, Attack}
+    [HideInInspector] public enum AttackState { Slash, Backhand, DoubleFist, NotAttacking }
+
     State state;
+    AttackState attackState;
 
     /*******************Movement******************/
     //-------------public-------------
@@ -30,7 +33,9 @@ public class PlayerController : MonoBehaviour
 
     /*******************Attacking******************/
     float attackTimer;
+    bool canAttack;
     float animationLength_Slash;
+    float animationLength_Backhand;
 
     // Start is called before the first frame update
     void Start()
@@ -61,13 +66,43 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
+        Debug.Log(attackState);
+
         if (attackTimer > 0.0f)
         {
             attackTimer -= Time.deltaTime;
+
+            switch(attackState)
+            {
+                case AttackState.Slash:
+
+                    if (attackTimer < animationLength_Slash / 3.0f)
+                    {
+                        canAttack = true;
+                    }
+
+                    break;
+
+                case AttackState.Backhand:
+
+                    if (attackTimer < animationLength_Backhand / 3.0f)
+                    {
+                        canAttack = true;
+                    }
+
+                    break;
+            }
         }
         else
         {
+            //Attack has ended
             attackTimer = 0.0f;
+            attackState = AttackState.NotAttacking;
+
+            //Stop Animations
+            animator.SetBool("StopAttacking", true);
+            
+            //player can move
             speed_current_run = speed_run;
             speed_current_rotation = speed_rotation;
 
@@ -180,7 +215,9 @@ public class PlayerController : MonoBehaviour
 
         //-------Attacking-----------
         attackTimer = 0.0f;
+        canAttack = true;
         animationLength_Slash = 1.75f;
+        animationLength_Backhand = 2.43f;
 
     }
 
@@ -206,12 +243,27 @@ public class PlayerController : MonoBehaviour
 
     public void Attack(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded)
+        if(context.performed && characterController.isGrounded && canAttack)
         {
-            attackTimer = animationLength_Slash;
+            //Stop Charcter
             speed_current_run = 0.0f;
             speed_current_rotation = 0.0f;
-            animator.SetTrigger("Attack");
+            canAttack = false;
+
+            if(attackTimer <= 0.0f)
+            {
+                attackState = AttackState.Slash;
+                attackTimer = animationLength_Slash;
+                animator.SetTrigger("Attack_Slash");
+            }
+            else if(attackState.Equals(AttackState.Slash))
+            {
+                attackState = AttackState.Backhand;
+                attackTimer = animationLength_Backhand;
+                animator.SetTrigger("Attack_Backhand");
+            }
+
+
         }
     }
 }
