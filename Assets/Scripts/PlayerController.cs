@@ -189,6 +189,11 @@ public class PlayerController : MonoBehaviour
         return state;
     }
 
+    public float GetAttackTimer()
+    {
+        return attackTimer;
+    }
+
     public void Jump(InputAction.CallbackContext context)
     {
         if(context.performed && characterController.isGrounded)
