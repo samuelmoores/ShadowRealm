@@ -15,10 +15,15 @@ public class PlayerController : MonoBehaviour
     CharacterController characterController;
     Transform cameraTransform;
     Animator animator;
+    float speed_current_run;
     float speed_y;
     bool inAir;
     float jumpTimer;
     float inAirTimer;
+
+    /*******************Attacking******************/
+    float attackTimer;
+    float animationLength_Slash;
 
     // Start is called before the first frame update
     void Start()
@@ -39,6 +44,18 @@ public class PlayerController : MonoBehaviour
         Run(moveDirection);
 
         JumpOrFall();
+
+        if(attackTimer > 0.0f)
+        {
+            attackTimer -= Time.deltaTime;
+        }
+        else
+        {
+            attackTimer = 0.0f;
+            speed_current_run = speed_run;
+        }
+
+        Debug.Log(attackTimer);
 
         SetAnimations(velocity_run);
 
@@ -79,7 +96,6 @@ public class PlayerController : MonoBehaviour
             if (inAirTimer < -0.4f)
             {
                 inAir = true;
-                Debug.Log(inAirTimer);
 
             }
         }
@@ -97,7 +113,7 @@ public class PlayerController : MonoBehaviour
     private void SetDirection(float horizontal, float vertical, out Vector3 moveDirection, out Vector3 velocity, out Vector2 velocity_run)
     {
         moveDirection = new Vector3(horizontal, 0.0f, vertical);
-        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_run;
+        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_current_run;
         moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
         moveDirection.Normalize();
         velocity = moveDirection * magnitude;
@@ -113,13 +129,21 @@ public class PlayerController : MonoBehaviour
 
     private void Init()
     {
+        //----------Components-------
         characterController = GetComponent<CharacterController>();
         cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
         animator = GetComponent<Animator>();
+
+        //-------Movement-----------
+        speed_current_run = speed_run;
         speed_y = 0.0f;
         inAir = false;
         inAirTimer = 0.0f;
         jumpTimer = 0.5f;
+
+        //-------Attacking-----------
+        attackTimer = 0.0f;
+        animationLength_Slash = 1.75f;
 
     }
 
@@ -137,7 +161,8 @@ public class PlayerController : MonoBehaviour
     {
         if(context.performed && characterController.isGrounded)
         {
-            speed_run = 0.0f;
+            attackTimer = animationLength_Slash;
+            speed_current_run = 0.0f;
             animator.SetTrigger("Attack");
         }
     }
