@@ -19584,7 +19584,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 698967765}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13173412, y: 0.0000000085282155, z: -0.0000000011333338, w: 0.9912851}
+  m_LocalRotation: {x: 0.13173412, y: 0.000000008528214, z: -0.0000000011333335, w: 0.9912851}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -19663,7 +19663,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 700293887}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.095638804, y: -0.000000019149132, z: 0.0000000018398338, w: 0.9954161}
+  m_LocalRotation: {x: 0.095638804, y: 0.000000019149132, z: -0.0000000018398338, w: 0.9954161}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -33526,7 +33526,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 889251214}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.11368136, y: -0.00000001762095, z: 0.0000000020162443, w: 0.9935173}
+  m_LocalRotation: {x: 0.11368136, y: 0.000000017620957, z: -0.0000000020162452, w: 0.9935173}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -33666,8 +33666,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.11368137, y: -0.000000037501646, z: 0.000000004291056, w: 0.9935173}
-  m_LocalPosition: {x: -6.13, y: 3.863, z: 30.640001}
+  m_LocalRotation: {x: 0.11368137, y: 0.00000003750165, z: -0.000000004291057, w: 0.9935173}
+  m_LocalPosition: {x: -6.13, y: 4.09, z: 30.640001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52817,7 +52817,7 @@ Transform:
   m_GameObject: {fileID: 1378301845}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.13, y: 1.363, z: 39.88}
+  m_LocalPosition: {x: -6.13, y: 1.59, z: 39.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -52930,6 +52930,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 3b1a69d7-ff96-4f54-8df1-400e184fb410
     m_ActionName: Gameplay/Jump
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1378301847}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: Attack
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 706faddd-3e75-4a38-b54c-2f0e79bedfcd
+    m_ActionName: Gameplay/Attack[/Mouse/leftButton,/XInputControllerWindows/buttonWest]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay

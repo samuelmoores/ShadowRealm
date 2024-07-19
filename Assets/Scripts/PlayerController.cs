@@ -29,28 +29,35 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Get input
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        float horizontal, vertical;
+        GetInput(out horizontal, out vertical);
 
-        //Set direction
-        Vector3 moveDirection = new Vector3(horizontal, 0.0f, vertical);
-        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_run;
-        moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
-        moveDirection.Normalize();
-        Vector3 velocity = moveDirection * magnitude;
-        velocity.y = speed_y;
-        Vector2 velocity_run = new Vector2(velocity.x, velocity.z);
+        Vector3 moveDirection, velocity;
+        Vector2 velocity_run;
+        SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
 
-        //run
-        if (moveDirection != Vector3.zero)
-        {
-            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_rotation * Time.deltaTime);
-        }
+        Run(moveDirection);
 
+        JumpOrFall();
 
-        //jump or fall
+        SetAnimations(velocity_run);
+
+        Move(velocity);
+    }
+
+    private void Move(Vector3 velocity)
+    {
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void SetAnimations(Vector2 velocity_run)
+    {
+        animator.SetFloat("runVelocity", velocity_run.magnitude);
+        animator.SetBool("inAir", inAir);
+    }
+
+    private void JumpOrFall()
+    {
         if (characterController.isGrounded)
         {
             inAirTimer = 0.0f;
@@ -69,20 +76,39 @@ public class PlayerController : MonoBehaviour
             jumpTimer -= Time.deltaTime;
 
             //player is falling
-            if(inAirTimer < -0.4f)
+            if (inAirTimer < -0.4f)
             {
                 inAir = true;
                 Debug.Log(inAirTimer);
 
             }
         }
+    }
 
-        //set animator
-        animator.SetFloat("runVelocity", velocity_run.magnitude);
-        animator.SetBool("inAir", inAir);
+    private void Run(Vector3 moveDirection)
+    {
+        if (moveDirection != Vector3.zero)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_rotation * Time.deltaTime);
+        }
+    }
 
-        //apply movement
-        characterController.Move(velocity * Time.deltaTime);
+    private void SetDirection(float horizontal, float vertical, out Vector3 moveDirection, out Vector3 velocity, out Vector2 velocity_run)
+    {
+        moveDirection = new Vector3(horizontal, 0.0f, vertical);
+        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_run;
+        moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
+        moveDirection.Normalize();
+        velocity = moveDirection * magnitude;
+        velocity.y = speed_y;
+        velocity_run = new Vector2(velocity.x, velocity.z);
+    }
+
+    private static void GetInput(out float horizontal, out float vertical)
+    {
+        horizontal = Input.GetAxis("Horizontal");
+        vertical = Input.GetAxis("Vertical");
     }
 
     private void Init()
@@ -104,6 +130,15 @@ public class PlayerController : MonoBehaviour
             speed_y = speed_jump;
             inAirTimer = 0.0f;
             inAir = true;
+        }
+    }
+
+    public void Attack(InputAction.CallbackContext context)
+    {
+        if(context.performed && characterController.isGrounded)
+        {
+            speed_run = 0.0f;
+            animator.SetTrigger("Attack");
         }
     }
 }
