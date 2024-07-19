@@ -1,3 +1,5 @@
+using System.Resources;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,17 +7,22 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [HideInInspector] public enum State { Idle, Run, Jump, Attack}
+    State state;
+
     /*******************Movement******************/
     //-------------public-------------
     public float speed_run;
     public float speed_jump;
     public float speed_rotation;
-    
+
+
     //------------private-------------
     CharacterController characterController;
     Transform cameraTransform;
     Animator animator;
     float speed_current_run;
+    float speed_current_rotation;
     float speed_y;
     bool inAir;
     float jumpTimer;
@@ -45,7 +52,16 @@ public class PlayerController : MonoBehaviour
 
         JumpOrFall();
 
-        if(attackTimer > 0.0f)
+        Attack();
+
+        SetState(velocity_run);
+
+        Move(velocity);
+    }
+
+    private void Attack()
+    {
+        if (attackTimer > 0.0f)
         {
             attackTimer -= Time.deltaTime;
         }
@@ -53,13 +69,9 @@ public class PlayerController : MonoBehaviour
         {
             attackTimer = 0.0f;
             speed_current_run = speed_run;
+            speed_current_rotation = speed_rotation;
+
         }
-
-        Debug.Log(attackTimer);
-
-        SetAnimations(velocity_run);
-
-        Move(velocity);
     }
 
     private void Move(Vector3 velocity)
@@ -67,10 +79,30 @@ public class PlayerController : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
     }
 
-    private void SetAnimations(Vector2 velocity_run)
+    private void SetState(Vector2 velocity_run)
     {
         animator.SetFloat("runVelocity", velocity_run.magnitude);
         animator.SetBool("inAir", inAir);
+
+        //if running on ground
+        if(velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
+        {
+            state = State.Run;
+        }
+        else if(inAir) //in air
+        {
+            state = State.Jump;
+
+        }
+        else if(!inAir && attackTimer > 0.0f)
+        {
+            state = State.Attack;
+        }
+        else
+        {
+            state = State.Idle;
+
+        }
     }
 
     private void JumpOrFall()
@@ -106,7 +138,8 @@ public class PlayerController : MonoBehaviour
         if (moveDirection != Vector3.zero)
         {
             Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_rotation * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_current_rotation * Time.deltaTime);
+            state = State.Run;
         }
     }
 
@@ -119,6 +152,7 @@ public class PlayerController : MonoBehaviour
         velocity = moveDirection * magnitude;
         velocity.y = speed_y;
         velocity_run = new Vector2(velocity.x, velocity.z);
+
     }
 
     private static void GetInput(out float horizontal, out float vertical)
@@ -129,6 +163,9 @@ public class PlayerController : MonoBehaviour
 
     private void Init()
     {
+        //Player State
+        state = State.Idle;
+
         //----------Components-------
         characterController = GetComponent<CharacterController>();
         cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
@@ -147,6 +184,11 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public State GetState()
+    {
+        return state;
+    }
+
     public void Jump(InputAction.CallbackContext context)
     {
         if(context.performed && characterController.isGrounded)
@@ -163,6 +205,7 @@ public class PlayerController : MonoBehaviour
         {
             attackTimer = animationLength_Slash;
             speed_current_run = 0.0f;
+            speed_current_rotation = 0.0f;
             animator.SetTrigger("Attack");
         }
     }
