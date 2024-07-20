@@ -32,16 +32,12 @@ public class PlayerController : MonoBehaviour
     float inAirTimer;
 
     /*******************Attacking******************/
+    float health;
     float attackTimer;
     bool canAttack;
     float animationLength_Slash;
     float animationLength_Backhand;
-    int i = 0;
-
-    /*******************Damaging******************/
     bool inflictDamage;
-
-
 
     // Start is called before the first frame update
     void Start()
@@ -69,7 +65,83 @@ public class PlayerController : MonoBehaviour
 
         Move(velocity);
     }
+    private void Init()
+    {
+        //Player State
+        state = State.Idle;
 
+        //----------Components-------
+        characterController = GetComponent<CharacterController>();
+        cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
+        animator = GetComponent<Animator>();
+
+        //-------Movement-----------
+        speed_current_run = speed_run;
+        speed_y = 0.0f;
+        inAir = false;
+        inAirTimer = 0.0f;
+        jumpTimer = 0.5f;
+
+        //-------Attacking-----------
+        health = 1.0f;
+        attackTimer = 0.0f;
+        canAttack = true;
+        animationLength_Slash = 1.75f;
+        animationLength_Backhand = 2.43f;
+
+    }
+    private static void GetInput(out float horizontal, out float vertical)
+    {
+        horizontal = Input.GetAxis("Horizontal");
+        vertical = Input.GetAxis("Vertical");
+    }
+    private void SetDirection(float horizontal, float vertical, out Vector3 moveDirection, out Vector3 velocity, out Vector2 velocity_run)
+    {
+        moveDirection = new Vector3(horizontal, 0.0f, vertical);
+        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_current_run;
+        moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
+        moveDirection.Normalize();
+        velocity = moveDirection * magnitude;
+        velocity.y = speed_y;
+        velocity_run = new Vector2(velocity.x, velocity.z);
+
+    }
+    private void Run(Vector3 moveDirection)
+    {
+        if (moveDirection != Vector3.zero)
+        {
+            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_current_rotation * Time.deltaTime);
+            state = State.Run;
+        }
+    }
+    private void JumpOrFall()
+    {
+        if (characterController.isGrounded)
+        {
+            inAirTimer = 0.0f;
+
+            if (inAir && jumpTimer < 0.0f)
+            {
+                jumpTimer = 0.5f;
+                inAir = false;
+            }
+        }
+        else
+        {
+            speed_y += Physics.gravity.y * Time.deltaTime;
+
+            inAirTimer -= Time.deltaTime;
+            jumpTimer -= Time.deltaTime;
+
+            //player is falling
+            if (inAirTimer < -0.4f)
+            {
+                inAir = true;
+
+            }
+        }
+    }
     private void Attack()
     {
         Debug.Log(attackState);
@@ -125,12 +197,6 @@ public class PlayerController : MonoBehaviour
 
         }
     }
-
-    private void Move(Vector3 velocity)
-    {
-        characterController.Move(velocity * Time.deltaTime);
-    }
-
     private void SetState(Vector2 velocity_run)
     {
         animator.SetFloat("runVelocity", velocity_run.magnitude);
@@ -156,98 +222,26 @@ public class PlayerController : MonoBehaviour
 
         }
     }
-
-    private void JumpOrFall()
+    private void Move(Vector3 velocity)
     {
-        if (characterController.isGrounded)
-        {
-            inAirTimer = 0.0f;
-
-            if (inAir && jumpTimer < 0.0f)
-            {
-                jumpTimer = 0.5f;
-                inAir = false;
-            }
-        }
-        else
-        {
-            speed_y += Physics.gravity.y * Time.deltaTime;
-
-            inAirTimer -= Time.deltaTime;
-            jumpTimer -= Time.deltaTime;
-
-            //player is falling
-            if (inAirTimer < -0.4f)
-            {
-                inAir = true;
-
-            }
-        }
+        characterController.Move(velocity * Time.deltaTime);
     }
-
-    private void Run(Vector3 moveDirection)
-    {
-        if (moveDirection != Vector3.zero)
-        {
-            Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_current_rotation * Time.deltaTime);
-            state = State.Run;
-        }
-    }
-
-    private void SetDirection(float horizontal, float vertical, out Vector3 moveDirection, out Vector3 velocity, out Vector2 velocity_run)
-    {
-        moveDirection = new Vector3(horizontal, 0.0f, vertical);
-        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_current_run;
-        moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
-        moveDirection.Normalize();
-        velocity = moveDirection * magnitude;
-        velocity.y = speed_y;
-        velocity_run = new Vector2(velocity.x, velocity.z);
-
-    }
-
-    private static void GetInput(out float horizontal, out float vertical)
-    {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
-    }
-
-    private void Init()
-    {
-        //Player State
-        state = State.Idle;
-
-        //----------Components-------
-        characterController = GetComponent<CharacterController>();
-        cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
-        animator = GetComponent<Animator>();
-
-        //-------Movement-----------
-        speed_current_run = speed_run;
-        speed_y = 0.0f;
-        inAir = false;
-        inAirTimer = 0.0f;
-        jumpTimer = 0.5f;
-
-        //-------Attacking-----------
-        attackTimer = 0.0f;
-        canAttack = true;
-        animationLength_Slash = 1.75f;
-        animationLength_Backhand = 2.43f;
-
-    }
-
     public State GetState()
     {
         return state;
     }
-
+    public float GetHealth()
+    {
+        return health;
+    }
     public float GetAttackTimer()
     {
         return attackTimer;
     }
-
+    public bool InflictDamage()
+    {
+        return inflictDamage;
+    }
     public void Jump(InputAction.CallbackContext context)
     {
         if(context.performed && characterController.isGrounded)
@@ -257,7 +251,6 @@ public class PlayerController : MonoBehaviour
             inAir = true;
         }
     }
-
     public void Attack(InputAction.CallbackContext context)
     {
         if(context.performed && characterController.isGrounded && canAttack)
@@ -284,8 +277,4 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public bool InflictDamage()
-    {
-        return inflictDamage;
-    }
 }
