@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Cinemachine;
 
 public class HUD : MonoBehaviour
 {
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
     public GameObject PauseMenu, SettingsMenu, ControlsMenu;
-
+    public CinemachineFreeLook cam;
     public GameObject PauseMenuFirst, SettingsMenuFirst, ControlsMenuFirst;
+    public Toggle Toggle_InvertCamera;
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
 
     //----Objects-----
@@ -24,6 +26,7 @@ public class HUD : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         PauseMenu.SetActive(false);
         SettingsMenu.SetActive(false);
+        Toggle_InvertCamera.isOn = false;
 
     }
 
@@ -32,6 +35,20 @@ public class HUD : MonoBehaviour
     {
         SetHealthBar();
 
+    }
+
+    public void InvertCamera()
+    {
+        if(cam.m_YAxis.m_InvertInput)
+        {
+            Toggle_InvertCamera.isOn = false;
+            cam.m_YAxis.m_InvertInput = false;
+        }
+        else
+        {
+            Toggle_InvertCamera.isOn = true;
+            cam.m_YAxis.m_InvertInput = true;
+        }
     }
 
     private void SetHealthBar()
