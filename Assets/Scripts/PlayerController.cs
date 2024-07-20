@@ -2,25 +2,26 @@ using System.Resources;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 //Movement code courtesy of Ketra Games
 
 public class PlayerController : MonoBehaviour
 {
-    [HideInInspector] public enum State { Idle, Run, Jump, Attack}
+    [HideInInspector] public enum State { Idle, Run, Jump, Attack }
     [HideInInspector] public enum AttackState { Slash, Backhand, DoubleFist, NotAttacking }
 
     State state;
     AttackState attackState;
 
     /*******************Movement******************/
-    //-------------public-------------
+    //---------public-------
     public float speed_run;
     public float speed_jump;
     public float speed_rotation;
 
 
-    //------------private-------------
+    //--------private-------
     CharacterController characterController;
     Transform cameraTransform;
     Animator animator;
@@ -39,6 +40,10 @@ public class PlayerController : MonoBehaviour
     float animationLength_Backhand;
     bool inflictDamage;
 
+    /*******************UI******************/
+    bool gameIsPaused;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -48,22 +53,28 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float horizontal, vertical;
-        GetInput(out horizontal, out vertical);
+        Debug.Log(gameIsPaused);
 
-        Vector3 moveDirection, velocity;
-        Vector2 velocity_run;
-        SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
+        if(!gameIsPaused)
+        { 
+            float horizontal, vertical;
 
-        Run(moveDirection);
+            GetInput(out horizontal, out vertical);
 
-        JumpOrFall();
+            Vector3 moveDirection, velocity;
+            Vector2 velocity_run;
+            SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
 
-        Attack();
+            Run(moveDirection);
 
-        SetState(velocity_run);
+            JumpOrFall();
 
-        Move(velocity);
+            Attack();
+
+            SetState(velocity_run);
+
+            Move(velocity);
+        }
     }
     private void Init()
     {
@@ -88,6 +99,10 @@ public class PlayerController : MonoBehaviour
         canAttack = true;
         animationLength_Slash = 1.75f;
         animationLength_Backhand = 2.43f;
+
+        //-------UI-----------
+        gameIsPaused = false;
+
 
     }
     private static void GetInput(out float horizontal, out float vertical)
@@ -144,8 +159,6 @@ public class PlayerController : MonoBehaviour
     }
     private void Attack()
     {
-        Debug.Log(attackState);
-
         if (attackTimer > 0.0f)
         {
             attackTimer -= Time.deltaTime;
@@ -238,13 +251,17 @@ public class PlayerController : MonoBehaviour
     {
         return attackTimer;
     }
+    public bool PausedGame()
+    {
+        return gameIsPaused;
+    }
     public bool InflictDamage()
     {
         return inflictDamage;
     }
     public void Jump(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded)
+        if(context.performed && characterController.isGrounded && !gameIsPaused)
         {
             speed_y = speed_jump;
             inAirTimer = 0.0f;
@@ -253,7 +270,7 @@ public class PlayerController : MonoBehaviour
     }
     public void Attack(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && canAttack)
+        if(context.performed && characterController.isGrounded && canAttack && !gameIsPaused)
         {
             //Stop Charcter
             speed_current_run = 0.0f;
@@ -275,6 +292,26 @@ public class PlayerController : MonoBehaviour
 
 
         }
+    }
+
+    public void PauseGame(InputAction.CallbackContext context)
+    {
+        if(context.performed)
+        {
+            if(gameIsPaused)
+            {
+                gameIsPaused = false;
+            }
+            else
+            {
+                gameIsPaused = true;
+            }
+        }
+        
+    }
+    public void SetGameIsPaused(bool pauseGame)
+    {
+        gameIsPaused = pauseGame;
     }
 
 }
