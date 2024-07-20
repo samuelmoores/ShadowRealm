@@ -36,6 +36,12 @@ public class PlayerController : MonoBehaviour
     bool canAttack;
     float animationLength_Slash;
     float animationLength_Backhand;
+    int i = 0;
+
+    /*******************Damaging******************/
+    bool inflictDamage;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -75,6 +81,17 @@ public class PlayerController : MonoBehaviour
             switch(attackState)
             {
                 case AttackState.Slash:
+
+                    if(attackTimer < animationLength_Slash - 0.40 && attackTimer > animationLength_Slash - 0.90)
+                    {
+                        inflictDamage = true;
+                    }
+                    else
+                    {
+                        inflictDamage = false;
+                    }
+
+
 
                     if (attackTimer < animationLength_Slash / 3.0f)
                     {
@@ -265,5 +282,10 @@ public class PlayerController : MonoBehaviour
 
 
         }
+    }
+
+    public bool InflictDamage()
+    {
+        return inflictDamage;
     }
 }

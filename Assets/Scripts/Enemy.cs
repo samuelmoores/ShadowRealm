@@ -22,11 +22,14 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        if(player.GetAttackTimer() < 1.2f && player.GetAttackTimer() > 0.8f)
+       if(damaged && damageTimer > 0.0f)
         {
-            //Debug.Log(player.GetAttackTimer());
-
+            damageTimer -= Time.deltaTime;
+        }
+       else
+        {
+            damageTimer = 1.0f;
+            damaged = false;
         }
     }
 
@@ -36,7 +39,7 @@ public class Enemy : MonoBehaviour
         {
             if (player.GetState().Equals(PlayerController.State.Attack))
             {
-                if (!damaged && player.GetAttackTimer() > 0.0f)
+                if (!damaged && player.InflictDamage())
                 {
                     damaged = true;
                     animator.SetTrigger("Damage");
