@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     bool inAir;
     float jumpTimer;
     float inAirTimer;
+    int i = 0;
 
     /*******************Attacking******************/
     float health;
@@ -42,6 +43,7 @@ public class PlayerController : MonoBehaviour
 
     /*******************UI******************/
     bool gameIsPaused;
+    [HideInInspector] public float unPauseTimer;
 
 
     // Start is called before the first frame update
@@ -53,10 +55,15 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(gameIsPaused);
+        //Debug.Log(unPauseTimer);
 
         if(!gameIsPaused)
-        { 
+        {
+            if(unPauseTimer > 0.0f)
+            {
+                unPauseTimer -= Time.deltaTime;
+            }
+
             float horizontal, vertical;
 
             GetInput(out horizontal, out vertical);
@@ -102,6 +109,7 @@ public class PlayerController : MonoBehaviour
 
         //-------UI-----------
         gameIsPaused = false;
+        unPauseTimer = 0.0f;
 
 
     }
@@ -261,8 +269,9 @@ public class PlayerController : MonoBehaviour
     }
     public void Jump(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && !gameIsPaused)
+        if(context.performed && characterController.isGrounded && unPauseTimer <= 0.0f)
         {
+            //Debug.Log("Jump");
             speed_y = speed_jump;
             inAirTimer = 0.0f;
             inAir = true;
@@ -270,7 +279,7 @@ public class PlayerController : MonoBehaviour
     }
     public void Attack(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && canAttack && !gameIsPaused)
+        if(context.performed && characterController.isGrounded && canAttack && unPauseTimer <= 0.0f)
         {
             //Stop Charcter
             speed_current_run = 0.0f;
@@ -290,25 +299,9 @@ public class PlayerController : MonoBehaviour
                 animator.SetTrigger("Attack_Backhand");
             }
 
-
         }
     }
 
-    public void PauseGame(InputAction.CallbackContext context)
-    {
-        if(context.performed)
-        {
-            if(gameIsPaused)
-            {
-                gameIsPaused = false;
-            }
-            else
-            {
-                gameIsPaused = true;
-            }
-        }
-        
-    }
     public void SetGameIsPaused(bool pauseGame)
     {
         gameIsPaused = pauseGame;
