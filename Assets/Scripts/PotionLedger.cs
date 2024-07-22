@@ -21,9 +21,7 @@ public class PotionLedger : MonoBehaviour
     {
         EncryptAlphabet();
 
-        decryptedMessage = "NOTICE" + 
-            "IF INGREDIANTS X Y AND Z ARE MIXED" + 
-            "YOU WILL BE SENTANCED TO DEATH";
+        decryptedMessage = "TAXES PIZZA EGG";
 
         EncryptMessage(decryptedMessage);
 
