@@ -27,7 +27,7 @@ public class HUD : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         PauseMenu.SetActive(false);
         SettingsMenu.SetActive(false);
-        Toggle_InvertCamera.isOn = false;
+        Toggle_InvertCamera.isOn = true;
         Slider_Sensitivity.value = 0.5f;
 
     }
@@ -78,13 +78,13 @@ public class HUD : MonoBehaviour
     {
         if(cam.m_YAxis.m_InvertInput)
         {
-            Toggle_InvertCamera.isOn = false;
             cam.m_YAxis.m_InvertInput = false;
+            Toggle_InvertCamera.isOn = true;
         }
         else
         {
-            Toggle_InvertCamera.isOn = true;
             cam.m_YAxis.m_InvertInput = true;
+            Toggle_InvertCamera.isOn = false;
         }
     }
 

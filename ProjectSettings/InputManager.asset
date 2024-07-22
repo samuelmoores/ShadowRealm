@@ -118,7 +118,7 @@ InputManager:
     axis: 0
     joyNum: 0
   - serializedVersion: 3
-    m_Name: Horizontal_Look
+    m_Name: Horizontal_Look_Mouse
     descriptiveName: Mouse X
     descriptiveNegativeName: 
     negativeButton: 
@@ -134,7 +134,7 @@ InputManager:
     axis: 0
     joyNum: 0
   - serializedVersion: 3
-    m_Name: Vertical_Look
+    m_Name: Vertical_Look_Mouse
     descriptiveName: Mouse Y
     descriptiveNegativeName: 
     negativeButton: 

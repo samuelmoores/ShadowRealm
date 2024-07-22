@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector] public enum State { Idle, Run, Jump, Attack }
-    [HideInInspector] public enum AttackState { Slash, Backhand, DoubleFist, NotAttacking }
+    [HideInInspector] public enum AttackState { Attack_01, Attack_02, Attack_03, NotAttacking }
 
     State state;
     AttackState attackState;
@@ -31,14 +31,13 @@ public class PlayerController : MonoBehaviour
     bool inAir;
     float jumpTimer;
     float inAirTimer;
-    int i = 0;
 
     /*******************Attacking******************/
     float health;
     float attackTimer;
     bool canAttack;
-    float animationLength_Slash;
-    float animationLength_Backhand;
+    float animationLength_Attack_01;
+    float animationLength_Attack_02;
     bool inflictDamage;
 
     /*******************UI******************/
@@ -104,8 +103,8 @@ public class PlayerController : MonoBehaviour
         health = 1.0f;
         attackTimer = 0.0f;
         canAttack = true;
-        animationLength_Slash = 1.75f;
-        animationLength_Backhand = 2.43f;
+        animationLength_Attack_01 = 1.267f;
+        animationLength_Attack_02 = 1.833f;
 
         //-------UI-----------
         gameIsPaused = false;
@@ -173,9 +172,9 @@ public class PlayerController : MonoBehaviour
 
             switch(attackState)
             {
-                case AttackState.Slash:
+                case AttackState.Attack_01:
 
-                    if(attackTimer < animationLength_Slash - 0.40 && attackTimer > animationLength_Slash - 0.90)
+                    if(attackTimer < animationLength_Attack_01 - 0.50 && attackTimer > animationLength_Attack_01 - 0.90)
                     {
                         inflictDamage = true;
                     }
@@ -186,16 +185,25 @@ public class PlayerController : MonoBehaviour
 
 
 
-                    if (attackTimer < animationLength_Slash / 3.0f)
+                    if (attackTimer < animationLength_Attack_01 / 3.0f)
                     {
                         canAttack = true;
                     }
 
                     break;
 
-                case AttackState.Backhand:
+                case AttackState.Attack_02:
 
-                    if (attackTimer < animationLength_Backhand / 3.0f)
+                    if (attackTimer < animationLength_Attack_02 - 0.60f && attackTimer > animationLength_Attack_02 - 1.40f)
+                    {
+                        inflictDamage = true;
+                    }
+                    else
+                    {
+                        inflictDamage = false;
+                    }
+
+                    if (attackTimer < animationLength_Attack_02 / 3.0f)
                     {
                         canAttack = true;
                     }
@@ -211,7 +219,7 @@ public class PlayerController : MonoBehaviour
 
             //Stop Animations
             animator.SetBool("StopAttacking", true);
-            
+
             //player can move
             speed_current_run = speed_run;
             speed_current_rotation = speed_rotation;
@@ -288,15 +296,15 @@ public class PlayerController : MonoBehaviour
 
             if(attackTimer <= 0.0f)
             {
-                attackState = AttackState.Slash;
-                attackTimer = animationLength_Slash;
-                animator.SetTrigger("Attack_Slash");
+                attackState = AttackState.Attack_01;
+                attackTimer = animationLength_Attack_01;
+                animator.SetTrigger("Attack_01");
             }
-            else if(attackState.Equals(AttackState.Slash))
+            else if(attackState.Equals(AttackState.Attack_01))
             {
-                attackState = AttackState.Backhand;
-                attackTimer = animationLength_Backhand;
-                animator.SetTrigger("Attack_Backhand");
+                attackState = AttackState.Attack_02;
+                attackTimer = animationLength_Attack_02;
+                animator.SetTrigger("Attack_02");
             }
 
         }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d8d2d32bbe06ffc4bac5c78186421bb4
+guid: 47821bd371477e344b4b7d495d0fb4c1
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Run
+      name: Run_Sword
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 16
+      lastFrame: 18
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
