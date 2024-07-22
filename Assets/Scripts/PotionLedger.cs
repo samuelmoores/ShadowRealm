@@ -6,17 +6,50 @@ using UnityEngine;
 
 public class PotionLedger : MonoBehaviour
 {
+    public GameObject PosionOrder;
+    string decryptedMessage;
+    
+    [HideInInspector] public string encryptionAlphabet_display;
     [HideInInspector] public string encryptionAlphabet;
-    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYG";
-    string encryptedMessage;
+    [HideInInspector] public string encryptedMessage;
 
-    private void Awake()
-    {
-        
-    }
+    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYG";
+    List<string> ingrediants = new List<string> { "WATER", "ALCOHOL", "VAPEPENLIQUID", "HERB", "PIZZA", "ZYN", "EGG", "TAXES", "VIAL" };
 
     // Start is called before the first frame update
     void Start()
+    {
+        EncryptAlphabet();
+
+        decryptedMessage = "BY THE DEMANDS OF KING KENARD WE HEARBY SENTACE GUARD JAMES TO DEATH" + 
+            "HIS DOCTOR HAS REVEALED THE INGREDIANTS FOR A POTION THAT WILL SURLEY KILL HIM" + 
+            "THEY ARE AS FOLLOWS WATER ALCOHOL HERB";
+
+        EncryptMessage(decryptedMessage);
+
+    }
+
+    private void EncryptMessage(string message)
+    {
+        for (int i = 0; i < message.Length; i++)
+        {
+            if (message[i] != ' ')
+            {
+                char characterToFind = message[i];
+
+                for (int j = 0; j < encryptionAlphabet.Length; j++)
+                {
+                    if (characterToFind == encryptionAlphabet[j])
+                    {
+                        Debug.Log(alphabet[j]);
+                        encryptedMessage += alphabet[j];
+                    }
+                }
+            }
+        }
+    }
+
+    private void EncryptAlphabet()
     {
         List<int> usedIndex = new List<int>();
         bool numberValid = false;
@@ -33,22 +66,17 @@ public class PotionLedger : MonoBehaviour
 
                 if (numberValid)
                 {
-                    Debug.Log(randomNumber + ": number valid");
                     usedIndex.Add(randomNumber);
 
-                }
-                else
-                {
-                    Debug.Log(randomNumber + ": not vaid");
                 }
                 count++;
             }
             count = 0;
 
-            encryptionAlphabet += "[" + (i + 1) + "]" + alphabet[usedIndex[i]] + "\n";
+            encryptionAlphabet += alphabet[usedIndex[i]];
+            encryptionAlphabet_display += "[" + (i + 1) + "]" + alphabet[usedIndex[i]] + "\n";
             numberValid = false;
         }
-
     }
 
     // Update is called once per frame
@@ -61,7 +89,15 @@ public class PotionLedger : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            Debug.Log("Player found ledger!");
+            PosionOrder.SetActive(true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            PosionOrder.SetActive(false);
         }
     }
 }

@@ -15,6 +15,8 @@ public class HUD : MonoBehaviour
     public Toggle Toggle_InvertCamera;
     public Slider Slider_Sensitivity;
     public TextMeshProUGUI Text_EncryptionAlphabet;
+    public TextMeshProUGUI Text_EncryptedMessage;
+
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
 
     //----Objects-----
@@ -33,7 +35,8 @@ public class HUD : MonoBehaviour
         SettingsMenu.SetActive(false);
         Toggle_InvertCamera.isOn = true;
         Slider_Sensitivity.value = 0.5f;
-        Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet;
+        Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet_display;
+        Text_EncryptedMessage.text = potionLedger.encryptedMessage;
     }
 
     // Update is called once per frame
