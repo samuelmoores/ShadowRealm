@@ -21,9 +21,9 @@ public class PotionLedger : MonoBehaviour
     {
         EncryptAlphabet();
 
-        decryptedMessage = "BY THE DEMANDS OF KING KENARD WE HEARBY SENTACE GUARD JAMES TO DEATH" + 
-            "HIS DOCTOR HAS REVEALED THE INGREDIANTS FOR A POTION THAT WILL SURLEY KILL HIM" + 
-            "THEY ARE AS FOLLOWS WATER ALCOHOL HERB";
+        decryptedMessage = "NOTICE" + 
+            "IF INGREDIANTS X Y AND Z ARE MIXED" + 
+            "YOU WILL BE SENTANCED TO DEATH";
 
         EncryptMessage(decryptedMessage);
 
