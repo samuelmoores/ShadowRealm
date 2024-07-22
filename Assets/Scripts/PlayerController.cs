@@ -40,7 +40,8 @@ public class PlayerController : MonoBehaviour
     bool inflictDamage;
 
     /*******************Damaging******************/
-    //int damageCount = 0;
+    int damageCount = 0;
+    int damageAnimation;
 
 
     /*******************UI******************/
@@ -281,6 +282,20 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(float damageAmount)
     {
         health -= damageAmount;
+        damageCount++;
+
+        switch(damageAnimation)
+        {
+            case 1:
+                animator.SetTrigger("Damage_01");
+                break;
+            case 2:
+                animator.SetTrigger("Damage_02");
+                break;
+            case 3:
+                animator.SetTrigger("Damage_03");
+                break;
+        }
     }
     public void Jump(InputAction.CallbackContext context)
     {

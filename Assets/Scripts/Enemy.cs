@@ -18,6 +18,8 @@ public class Enemy : MonoBehaviour
     //------------Damage-------------
     float damageTimer_current;
     bool damaged;
+    float health;
+    bool isDead;
 
     //-------AI---------
     float velocity;
@@ -40,6 +42,7 @@ public class Enemy : MonoBehaviour
         //Damage
         damaged = false;
         damageTimer_current = damageTimer;
+        health = 1.0f;
 
         //Ai
         distanceFromPlayer = 100.0f;
@@ -59,15 +62,40 @@ public class Enemy : MonoBehaviour
             startTimer -= Time.deltaTime;
         }
 
+        if(!isDead)
+        {
+            Move();
+
+            Attack();
+
+            Damage();
+
+            animator.SetFloat("runVelocity", velocity);
+        }
+        else
+        {
+            agent.isStopped = true;
+        }
+
+        
+    }
+
+    private void Move()
+    {
         velocity = agent.velocity.magnitude;
         distanceFromPlayer = agent.remainingDistance;
         agent.destination = player.transform.position;
 
-        Attack();
+        //let the enemy finish the attack if they player ran away
+        if (isAttacking || damaged)
+        {
+            agent.isStopped = true;
+        }
+        else
+        {
+            agent.isStopped = false;
 
-        Damage();
-
-        animator.SetFloat("runVelocity", velocity);
+        }
     }
 
     private void Attack()
@@ -89,16 +117,7 @@ public class Enemy : MonoBehaviour
             attackTimer = attackCoolDown;
         }
 
-        //let the enemy finish the attack if they player ran away
-        if (isAttacking)
-        {
-            agent.isStopped = true;
-        }
-        else
-        {
-            agent.isStopped = false;
-
-        }
+        
 
     }
 
@@ -125,6 +144,8 @@ public class Enemy : MonoBehaviour
             damageTimer_current = damageTimer;
             damaged = false;
         }
+
+       
     }
 
     public float GetAttackCooldown()
@@ -136,12 +157,25 @@ public class Enemy : MonoBehaviour
     {
         if (other.CompareTag("PlayerSword"))
         {
-            if (player.GetState().Equals(PlayerController.State.Attack))
+            TakeDamage(0.6f);
+
+        }
+    }
+
+    private void TakeDamage(float damageAmount)
+    {
+        if (player.GetState().Equals(PlayerController.State.Attack))
+        {
+            if (!damaged && player.InflictDamage())
             {
-                if (!damaged && player.InflictDamage())
+                damaged = true;
+                animator.SetTrigger("Damage");
+                health -= damageAmount;
+
+                if(health <= 0.0f)
                 {
-                    damaged = true;
-                    animator.SetTrigger("Damage");
+                    isDead = true;
+                    animator.SetBool("isDead", true);
                 }
             }
         }
