@@ -48,6 +48,7 @@ public class Sword : MonoBehaviour
         {
             player.TakeDamage(0.4f);
             canInflictDamage = false;
+            attackCount++;
         }
     }
 

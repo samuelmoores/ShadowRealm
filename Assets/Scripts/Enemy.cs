@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
     //---------public---------------
+    public bool isEnabled;
     public float damageTimer;
     public float attackCoolDown;
 
@@ -62,7 +63,7 @@ public class Enemy : MonoBehaviour
             startTimer -= Time.deltaTime;
         }
 
-        if(!isDead)
+        if(!isDead && isEnabled)
         {
             Move();
 

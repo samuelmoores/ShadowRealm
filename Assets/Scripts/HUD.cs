@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Cinemachine;
+using TMPro;
 
 public class HUD : MonoBehaviour
 {
@@ -13,11 +14,13 @@ public class HUD : MonoBehaviour
     public GameObject PauseMenuFirst, SettingsMenuFirst, ControlsMenuFirst;
     public Toggle Toggle_InvertCamera;
     public Slider Slider_Sensitivity;
+    public TextMeshProUGUI Text_EncryptionAlphabet;
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
 
     //----Objects-----
     Slider slider;
     PlayerController player;
+    PotionLedger potionLedger;
 
 
     // Start is called before the first frame update
@@ -25,11 +28,12 @@ public class HUD : MonoBehaviour
     {
         slider = GetComponent<Slider>();
         player = GameObject.Find("Player").GetComponent<PlayerController>();
+        potionLedger = GameObject.Find("PotionLedger").GetComponent<PotionLedger>();
         PauseMenu.SetActive(false);
         SettingsMenu.SetActive(false);
         Toggle_InvertCamera.isOn = true;
         Slider_Sensitivity.value = 0.5f;
-
+        Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet;
     }
 
     // Update is called once per frame
