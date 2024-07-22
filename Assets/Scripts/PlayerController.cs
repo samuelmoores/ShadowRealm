@@ -20,7 +20,6 @@ public class PlayerController : MonoBehaviour
     public float speed_jump;
     public float speed_rotation;
 
-
     //--------private-------
     CharacterController characterController;
     Transform cameraTransform;
@@ -40,10 +39,13 @@ public class PlayerController : MonoBehaviour
     float animationLength_Attack_02;
     bool inflictDamage;
 
+    /*******************Damaging******************/
+    //int damageCount = 0;
+
+
     /*******************UI******************/
     bool gameIsPaused;
     [HideInInspector] public float unPauseTimer;
-
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +56,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(unPauseTimer);
+        //Debug.Log(health);
 
         if(!gameIsPaused)
         {
@@ -274,6 +276,11 @@ public class PlayerController : MonoBehaviour
     public bool InflictDamage()
     {
         return inflictDamage;
+    }
+
+    public void TakeDamage(float damageAmount)
+    {
+        health -= damageAmount;
     }
     public void Jump(InputAction.CallbackContext context)
     {

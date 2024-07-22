@@ -54,25 +54,32 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(startTimer > 0.0f)
+        if (startTimer > 0.0f)
         {
             startTimer -= Time.deltaTime;
         }
-        //variables
+
         velocity = agent.velocity.magnitude;
         distanceFromPlayer = agent.remainingDistance;
-
-        //AI
         agent.destination = player.transform.position;
 
-        //Attacking
-        if(velocity <= 0.0f && distanceFromPlayer < 2.0f && startTimer <= 0.0f && !isAttacking)
+        Attack();
+
+        Damage();
+
+        animator.SetFloat("runVelocity", velocity);
+    }
+
+    private void Attack()
+    {
+        if (CanAttack())
         {
             animator.SetTrigger("Attack_01");
             isAttacking = true;
         }
 
-        if(isAttacking && attackTimer > 0.0f)
+        //run the attak cooldown
+        if (isAttacking && attackTimer > 0.0f)
         {
             attackTimer -= Time.deltaTime;
         }
@@ -82,11 +89,29 @@ public class Enemy : MonoBehaviour
             attackTimer = attackCoolDown;
         }
 
-        Debug.Log(attackTimer);
+        //let the enemy finish the attack if they player ran away
+        if (isAttacking)
+        {
+            agent.isStopped = true;
+        }
+        else
+        {
+            agent.isStopped = false;
 
-        Damage();
+        }
 
-        animator.SetFloat("runVelocity", velocity);
+    }
+
+    private bool CanAttack()
+    {
+        bool enemyStopped = velocity <= 0.0f;
+        bool closeToPlayer = distanceFromPlayer < 2.0f;
+        bool gameStarted = startTimer <= 0.0f;
+        bool notAlreadyAttacking = !isAttacking;
+
+        bool canAttack = enemyStopped && closeToPlayer && gameStarted && notAlreadyAttacking;
+
+        return canAttack;
     }
 
     private void Damage()
@@ -102,15 +127,19 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public float GetAttackCooldown()
+    {
+        return attackTimer;
+    }
+
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Sword"))
+        if (other.CompareTag("PlayerSword"))
         {
             if (player.GetState().Equals(PlayerController.State.Attack))
             {
                 if (!damaged && player.InflictDamage())
                 {
-                    Debug.Log("Damage");
                     damaged = true;
                     animator.SetTrigger("Damage");
                 }

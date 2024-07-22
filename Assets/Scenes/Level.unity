@@ -5464,6 +5464,44 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d1c8fefe0357c464a8cad253235f9d28, type: 3}
   m_PrefabInstance: {fileID: 1308247379}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &410249280 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2715566404302941441, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
+  m_PrefabInstance: {fileID: 618702933}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &410249282
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 410249280}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.6802451, y: 0.3103349, z: 0.08837106}
+  m_Center: {x: -0.5069792, y: 0.14560522, z: 0.05617482}
+--- !u!114 &410249283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 410249280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3089bfe83dbcf7c4a92b07bdabfa3bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &430312680 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4652350258223604000, guid: e942ebb8453e0c44382f045770cabdf4, type: 3}
@@ -6769,6 +6807,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Paladin
       objectReference: {fileID: 0}
+    - target: {fileID: 2715566404302941441, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
+      propertyPath: m_TagString
+      value: EnemySword
+      objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
       propertyPath: m_Controller
       value: 
@@ -6777,7 +6819,13 @@ PrefabInstance:
     - {fileID: 5866666021909216657, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2715566404302941441, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 410249283}
+    - targetCorrespondingSourceObject: {fileID: 2715566404302941441, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 410249282}
   m_SourcePrefab: {fileID: 100100000, guid: 6fb9a2f72fc858a4b96ba8290adff976, type: 3}
 --- !u!4 &627441593 stripped
 Transform:
@@ -38903,7 +38951,7 @@ GameObject:
   - component: {fileID: 1378301850}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -39576,7 +39624,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5a5224374db9b3148b328861ded015db, type: 3}
       propertyPath: m_TagString
-      value: Sword
+      value: PlayerSword
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
