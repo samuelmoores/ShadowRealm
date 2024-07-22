@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviour
     float inAirTimer;
 
     /*******************Attacking******************/
-    float health;
     float attackTimer;
     bool canAttack;
     float animationLength_Attack_01;
@@ -40,8 +39,10 @@ public class PlayerController : MonoBehaviour
     bool inflictDamage;
 
     /*******************Damaging******************/
+    float health;
     int damageCount = 0;
     int damageAnimation;
+    bool isDead;
 
 
     /*******************UI******************/
@@ -59,7 +60,7 @@ public class PlayerController : MonoBehaviour
     {
         //Debug.Log(health);
 
-        if(!gameIsPaused)
+        if(!gameIsPaused && !isDead)
         {
             if(unPauseTimer > 0.0f)
             {
@@ -103,11 +104,14 @@ public class PlayerController : MonoBehaviour
         jumpTimer = 0.5f;
 
         //-------Attacking-----------
-        health = 1.0f;
         attackTimer = 0.0f;
         canAttack = true;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
+        
+        //---------Damage----------
+        health = 1.0f;
+        isDead = false;
 
         //-------UI-----------
         gameIsPaused = false;
@@ -283,19 +287,29 @@ public class PlayerController : MonoBehaviour
     {
         health -= damageAmount;
         damageCount++;
+        damageAnimation = 1;
 
-        switch(damageAnimation)
+        if(health <= 0.0f)
         {
-            case 1:
-                animator.SetTrigger("Damage_01");
-                break;
-            case 2:
-                animator.SetTrigger("Damage_02");
-                break;
-            case 3:
-                animator.SetTrigger("Damage_03");
-                break;
+            isDead = true;
+            animator.SetBool("isDead", true);
         }
+        else
+        {
+            switch (damageAnimation)
+            {
+                case 1:
+                    animator.SetTrigger("Damage_01");
+                    break;
+                case 2:
+                    animator.SetTrigger("Damage_02");
+                    break;
+                case 3:
+                    animator.SetTrigger("Damage_03");
+                    break;
+            }
+        }
+        
     }
     public void Jump(InputAction.CallbackContext context)
     {
