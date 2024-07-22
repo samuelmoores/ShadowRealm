@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading;
 using UnityEngine;
 
 public class PotionLedger : MonoBehaviour
@@ -8,31 +10,45 @@ public class PotionLedger : MonoBehaviour
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYG";
     string encryptedMessage;
 
+    private void Awake()
+    {
+        
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         List<int> usedIndex = new List<int>();
+        bool numberValid = false;
+        int count = 0;
 
-        for(int i = 0; i < alphabet.Length; i++)
+        for (int i = 0; i < alphabet.Length; i++)
         {
-            //Get random number from alphabet
-            int newIndex = Random.Range(1, alphabet.Length);
-
-            //check if the index is valid
-            while(usedIndex.Contains(newIndex))
+            while (!numberValid && count < 1000)
             {
-                newIndex = Random.Range(1, alphabet.Length);
+                //Get random number from alphabet
+                int randomNumber = Random.Range(0, alphabet.Length);
+
+                numberValid = !usedIndex.Contains(randomNumber);
+
+                if (numberValid)
+                {
+                    Debug.Log(randomNumber + ": number valid");
+                    usedIndex.Add(randomNumber);
+
+                }
+                else
+                {
+                    Debug.Log(randomNumber + ": not vaid");
+                }
+                count++;
             }
+            count = 0;
 
-            usedIndex.Add(newIndex);
-
-            encryptionAlphabet += "[";
-            encryptionAlphabet += newIndex;
-            encryptionAlphabet += "]";
-            encryptionAlphabet += 'x';
-            encryptionAlphabet += " ";
-
+            encryptionAlphabet += "[" + (i + 1) + "]" + alphabet[usedIndex[i]] + "\n";
+            numberValid = false;
         }
+
     }
 
     // Update is called once per frame
