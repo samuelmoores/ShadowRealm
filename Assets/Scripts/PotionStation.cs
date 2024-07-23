@@ -6,6 +6,12 @@ using UnityEngine.UI;
 
 public class PotionStation : MonoBehaviour
 {
+    //---------Potions Spawning-----------------------------
+    public GameObject Poison_Prefab;
+    public Vector3 Spawn_Position;
+    //---------Potions-----------------------------
+
+
     //--------UI-------
     public GameObject potionStation_UI;
     public GameObject firstSelectedButton;
@@ -18,6 +24,7 @@ public class PotionStation : MonoBehaviour
 
     //----Crafting-------
     PlayerController player;
+    GameObject Spawned_Poison;
     int inputOrder;
     string[] poisonRecipe;
     string[] selectedIngredients;
@@ -85,6 +92,9 @@ public class PotionStation : MonoBehaviour
                 poisonRecipeValid[inputOrder] = true;
             }
 
+            //let the play go get a new one
+            SelectedIngredient.GetComponent<Ingrediant>().gameObject.SetActive(true);
+
             //Remove it from players ingredients
             player.UseIngredient(ingredient);
 
@@ -93,6 +103,7 @@ public class PotionStation : MonoBehaviour
             //Once all three inputs are filled, show the output
             if (inputOrder == 3)
             {
+                ClearInput();
                 SetOutput();
                 inputOrder = 0;
             }
@@ -104,6 +115,7 @@ public class PotionStation : MonoBehaviour
         if (poisonRecipeValid[0] && poisonRecipeValid[1] && poisonRecipeValid[2])
         {
             ImageToOutput = Image_Poison;
+            GameObject.Instantiate(Poison_Prefab, Spawn_Position, Quaternion.identity);
 
         }
         else
@@ -114,14 +126,17 @@ public class PotionStation : MonoBehaviour
         Output.GetComponent<Image>().sprite = ImageToOutput;
     }
 
-    void ClearOutput()
+    void ClearInput()
     {
-        for(int i = 0; i < Inputs.Count; i++)
+        for (int i = 0; i < Inputs.Count; i++)
         {
             Inputs[i].GetComponent<Image>().sprite = Image_None;
 
         }
+    }
 
+    void ClearOutput()
+    {
         Output.GetComponent<Image>().sprite = Image_None;
     }
 

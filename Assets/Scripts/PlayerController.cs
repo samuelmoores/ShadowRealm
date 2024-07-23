@@ -51,7 +51,6 @@ public class PlayerController : MonoBehaviour
     GameObject[] ingredients;
     bool isCrafting;
     int numOfIngredients;
-    int removalIndex;
 
 
     /*******************UI******************/
@@ -142,7 +141,6 @@ public class PlayerController : MonoBehaviour
         //-------Crafting-----------
         ingredients = new GameObject[9];
         numOfIngredients = 0;
-        removalIndex = 0;
 
     }
     private void GetInput(out float horizontal, out float vertical)
