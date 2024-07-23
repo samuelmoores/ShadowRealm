@@ -44,10 +44,13 @@ public class PlayerController : MonoBehaviour
     int damageAnimation;
     bool isDead;
 
+    /*******************Crafting******************/
+    bool isCrafting;
 
     /*******************UI******************/
     bool gameIsPaused;
     [HideInInspector] public float unPauseTimer;
+    [HideInInspector] public float unPauseTimer_current;
 
     // Start is called before the first frame update
     void Start()
@@ -59,32 +62,45 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //Debug.Log(health);
+        Debug.Log(unPauseTimer_current);
 
         if(!gameIsPaused && !isDead)
         {
-            if(unPauseTimer > 0.0f)
+            //let the game run while player is crafting but inhibit movement
+            //when exiting crafting guard against jumping 
+            if(unPauseTimer_current > 0.0f && !isCrafting)
             {
-                unPauseTimer -= Time.deltaTime;
+                unPauseTimer_current -= Time.deltaTime;
             }
 
             float horizontal, vertical;
-
             GetInput(out horizontal, out vertical);
 
             Vector3 moveDirection, velocity;
             Vector2 velocity_run;
             SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
+            
+            if(isCrafting)
+            {
+                moveDirection = Vector3.zero;
+                velocity = Vector3.zero;
+                unPauseTimer_current = unPauseTimer;
+            }
+            else
+            {
+                Run(moveDirection);
 
-            Run(moveDirection);
+                JumpOrFall();
 
-            JumpOrFall();
+                Attack();
 
-            Attack();
-
+                Move(velocity);
+            }
+            
             SetState(velocity_run);
 
-            Move(velocity);
         }
+        
     }
     private void Init()
     {
@@ -115,14 +131,22 @@ public class PlayerController : MonoBehaviour
 
         //-------UI-----------
         gameIsPaused = false;
-        unPauseTimer = 0.0f;
+        unPauseTimer = 0.2f;
+        unPauseTimer_current = 0.0f;
 
 
     }
-    private static void GetInput(out float horizontal, out float vertical)
+    private void GetInput(out float horizontal, out float vertical)
     {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
+
+        if (isCrafting)
+        {
+            horizontal = 0.0f;
+            vertical = 0.0f;
+        }
+
     }
     private void SetDirection(float horizontal, float vertical, out Vector3 moveDirection, out Vector3 velocity, out Vector2 velocity_run)
     {
@@ -133,6 +157,7 @@ public class PlayerController : MonoBehaviour
         velocity = moveDirection * magnitude;
         velocity.y = speed_y;
         velocity_run = new Vector2(velocity.x, velocity.z);
+
 
     }
     private void Run(Vector3 moveDirection)
@@ -258,6 +283,16 @@ public class PlayerController : MonoBehaviour
 
         }
     }
+
+    public void SetIsCrafting(bool value)
+    {
+        isCrafting = value;
+    }
+
+    public bool GetIsCrafting()
+    {
+        return isCrafting;
+    }
     private void Move(Vector3 velocity)
     {
         characterController.Move(velocity * Time.deltaTime);
@@ -313,9 +348,8 @@ public class PlayerController : MonoBehaviour
     }
     public void Jump(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && unPauseTimer <= 0.0f)
+        if(context.performed && characterController.isGrounded && unPauseTimer_current <= 0.0f && !isCrafting)
         {
-            //Debug.Log("Jump");
             speed_y = speed_jump;
             inAirTimer = 0.0f;
             inAir = true;
@@ -323,7 +357,7 @@ public class PlayerController : MonoBehaviour
     }
     public void Attack(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && canAttack && unPauseTimer <= 0.0f)
+        if(context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && ! isCrafting)
         {
             //Stop Charcter
             speed_current_run = 0.0f;

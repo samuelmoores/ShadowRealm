@@ -108,8 +108,7 @@ public class HUD : MonoBehaviour
 
         //Prevent player from jumping/attacking when game is unpause
         //since selecting resume and jump/attack are the same button
-        player.unPauseTimer = 0.2f;
-
+        player.unPauseTimer_current = player.unPauseTimer;
 
         SettingsMenu.SetActive(false);
         ControlsMenu.SetActive(false);
