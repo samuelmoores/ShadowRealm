@@ -9,10 +9,9 @@ TagManager:
   - PlayerSword
   - Sword
   - PotionLedger
-  - Ingrediant_00
-  - Ingrediant_01
-  - Ingrediant_02
   - Ingrediant
+  - Ingredient
+  - Herb
   layers:
   - Default
   - TransparentFX

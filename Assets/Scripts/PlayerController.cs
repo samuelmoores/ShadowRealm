@@ -48,9 +48,9 @@ public class PlayerController : MonoBehaviour
 
     /*******************Crafting******************/
     public GameObject testIngrediant;
-    GameObject[] ingrediants;
+    GameObject[] ingredients;
     bool isCrafting;
-    int addIndex;
+    int numOfIngredients;
     int removalIndex;
 
 
@@ -140,8 +140,8 @@ public class PlayerController : MonoBehaviour
         unPauseTimer_current = 0.0f;
 
         //-------Crafting-----------
-        ingrediants = new GameObject[9];
-        addIndex = 0;
+        ingredients = new GameObject[9];
+        numOfIngredients = 0;
         removalIndex = 0;
 
     }
@@ -321,31 +321,31 @@ public class PlayerController : MonoBehaviour
 
     public GameObject[] GetIngrediants()
     {
-        return ingrediants;
+        return ingredients;
     }
 
     public GameObject GetIngrediant(int index)
     {
-        return ingrediants[index];
+        return ingredients[index];
 
     }
 
     public int GetIngredientCount()
     {
-        return addIndex;
+        return numOfIngredients;
     }
 
-    public void AddIngrediant(GameObject ingrediant)
+    public void AddIngredient(GameObject ingrediant)
     {
-        ingrediants[addIndex++] = ingrediant;
+        ingredients[numOfIngredients++] = ingrediant;
         hud.AddIngrediantImage(ingrediant);
     }
 
     public void UseIngredient(int index)
     {
-        if(addIndex > 0)
+        if(numOfIngredients > 0)
         {
-            addIndex--;
+            numOfIngredients--;
             hud.RemoveIngredientImage(index);
 
         }
@@ -354,9 +354,9 @@ public class PlayerController : MonoBehaviour
     public void PrintIngedients()
     {
         Debug.Log("-----------");
-        for(int i = 0; i < addIndex; i++)
+        for(int i = 0; i < numOfIngredients; i++)
         {
-            Debug.Log("[" + i + "]" + ingrediants[i]);
+            Debug.Log("[" + i + "]" + ingredients[i]);
         }
         Debug.Log("-----------");
 

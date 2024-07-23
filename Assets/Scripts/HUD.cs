@@ -16,17 +16,14 @@ public class HUD : MonoBehaviour
     public Slider Slider_Sensitivity;
     public TextMeshProUGUI Text_EncryptionAlphabet;
     public TextMeshProUGUI Text_EncryptedMessage;
-
     public GameObject[] Ingrediant_Images;
     public Sprite Image_None;
-
-
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
 
     Slider slider;
     PlayerController player;
     PotionLedger potionLedger;
-    int ingrediantIndex;
+    int numOfIngredientImages;
 
 
     // Start is called before the first frame update
@@ -41,7 +38,7 @@ public class HUD : MonoBehaviour
         Slider_Sensitivity.value = 0.5f;
         Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet_display;
         Text_EncryptedMessage.text = potionLedger.encryptedMessage;
-        ingrediantIndex = 0;
+        numOfIngredientImages = 0;
     }
 
     // Update is called once per frame
@@ -52,15 +49,15 @@ public class HUD : MonoBehaviour
 
     public void AddIngrediantImage(GameObject ingrediant)
     {
-        Ingrediant_Images[ingrediantIndex].GetComponent<Image>().sprite = ingrediant.GetComponent<Image>().sprite;
-        ingrediantIndex++;
+        //Take image from ingrdient and put it on the HUD
+        Ingrediant_Images[numOfIngredientImages++].GetComponent<Image>().sprite = ingrediant.GetComponent<Image>().sprite;
     }
 
     public void RemoveIngredientImage(int index)
     {
         Debug.Log("HUD remove image at: " + index);
         Ingrediant_Images[index].GetComponent<Image>().sprite = Image_None;
-        ingrediantIndex--;
+        numOfIngredientImages--;
 
     }
 

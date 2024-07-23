@@ -16,6 +16,7 @@ public class PotionLedger : MonoBehaviour
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYG";
     List<string> ingrediants = new List<string> { "WATER", "ALCOHOL", "VAPEPENLIQUID", "HERB", "PIZZA", "ZYN", "EGG", "TAXES", "VIAL" };
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +25,8 @@ public class PotionLedger : MonoBehaviour
         decryptedMessage = "TAXES PIZZA EGG";
 
         EncryptMessage(decryptedMessage);
+
+        
 
     }
 
