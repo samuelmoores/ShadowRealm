@@ -17,7 +17,8 @@ public class HUD : MonoBehaviour
     public TextMeshProUGUI Text_EncryptionAlphabet;
     public TextMeshProUGUI Text_EncryptedMessage;
 
-    public List<GameObject> Ingrediant_Images;
+    public GameObject[] Ingrediant_Images;
+    public Sprite Image_None;
 
 
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
@@ -49,11 +50,18 @@ public class HUD : MonoBehaviour
         SetHealthBar();
     }
 
-    public void AddIngrediant()
+    public void AddIngrediantImage(GameObject ingrediant)
     {
-        Debug.Log(Ingrediant_Images[ingrediantIndex]);
-        Ingrediant_Images[ingrediantIndex].GetComponent<Image>().sprite = player.GetIngrediant(ingrediantIndex).GetComponent<Image>().sprite;
+        Ingrediant_Images[ingrediantIndex].GetComponent<Image>().sprite = ingrediant.GetComponent<Image>().sprite;
         ingrediantIndex++;
+    }
+
+    public void RemoveIngredientImage(int index)
+    {
+        Debug.Log("HUD remove image at: " + index);
+        Ingrediant_Images[index].GetComponent<Image>().sprite = Image_None;
+        ingrediantIndex--;
+
     }
 
     public void AdjustSensitivity()

@@ -11,6 +11,7 @@ public class Ingrediant : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
+
     }
 
     // Update is called once per frame

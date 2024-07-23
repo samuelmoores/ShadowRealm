@@ -8,7 +8,11 @@ public class PotionStation : MonoBehaviour
 {
     public GameObject potionStation;
     public GameObject firstSelectedButton;
-    public List<GameObject> InputImages;
+    public List<GameObject> Inputs;
+    public GameObject Output;
+    public Sprite ImageToOutput;
+
+    public Sprite Image_None;
 
     PlayerController player;
     int inputOrder;
@@ -18,6 +22,8 @@ public class PotionStation : MonoBehaviour
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         inputOrder = 0;
+
+
     }
 
     // Update is called once per frame
@@ -30,32 +36,46 @@ public class PotionStation : MonoBehaviour
         }
     }
 
-    public void SelectIngrediant(int ingrediant)
+    void ClearOutput()
     {
-        switch(inputOrder)
+        for(int i = 0; i < Inputs.Count; i++)
         {
-            case 0:
-                //input 1
-                Debug.Log("ingrediant " + ingrediant + ": [" + inputOrder + "]");
-                //set first input to the first selected ingrediant
-                //InputImages[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingrediant);
-                break;
-            case 1:
-                //input 2
-                Debug.Log("ingrediant " + ingrediant + ": [" + inputOrder + "]");
-                //InputImages[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingrediant);
+            Inputs[i].GetComponent<Image>().sprite = Image_None;
 
-                break;
-            case 2:
-                //input 2
-                Debug.Log("ingrediant " + ingrediant + ": [" + inputOrder + "]");
-                //InputImages[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingrediant);
-
-                inputOrder = 0;
-                break;
         }
-        inputOrder++;
+
+        Output.GetComponent<Image>().sprite = Image_None;
     }
+
+    //when ingredient is clicked
+    public void SelectIngrediant(int ingredient)
+    {
+        if (player.GetIngredientCount() > 0)
+        {
+            //set input to the selected ingrediant
+            Debug.Log("---------SelectIngrediant---------");
+            Debug.Log("inputOrder: " + inputOrder);
+            Debug.Log("ingrediant: " + ingredient);
+
+            Inputs[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingredient).GetComponent<Image>().sprite;
+            player.UseIngredient(ingredient);
+            inputOrder++;
+
+            if (inputOrder == 3)
+            {
+                SetOutput();
+                inputOrder = 0;
+            }
+
+        }
+    }
+
+    private void SetOutput()
+    {
+        Output.GetComponent<Image>().sprite = ImageToOutput;
+
+    }
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -74,7 +94,7 @@ public class PotionStation : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             potionStation.SetActive(false);
-
+            ClearOutput();
         }
     }
 }
