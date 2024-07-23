@@ -17,12 +17,15 @@ public class HUD : MonoBehaviour
     public TextMeshProUGUI Text_EncryptionAlphabet;
     public TextMeshProUGUI Text_EncryptedMessage;
 
+    public List<GameObject> Ingrediant_Images;
+
+
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
 
-    //----Objects-----
     Slider slider;
     PlayerController player;
     PotionLedger potionLedger;
+    int ingrediantIndex;
 
 
     // Start is called before the first frame update
@@ -37,13 +40,20 @@ public class HUD : MonoBehaviour
         Slider_Sensitivity.value = 0.5f;
         Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet_display;
         Text_EncryptedMessage.text = potionLedger.encryptedMessage;
+        ingrediantIndex = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
         SetHealthBar();
+    }
 
+    public void AddIngrediant()
+    {
+        Debug.Log(Ingrediant_Images[ingrediantIndex]);
+        Ingrediant_Images[ingrediantIndex].GetComponent<Image>().sprite = player.GetIngrediant(ingrediantIndex).GetComponent<Image>().sprite;
+        ingrediantIndex++;
     }
 
     public void AdjustSensitivity()

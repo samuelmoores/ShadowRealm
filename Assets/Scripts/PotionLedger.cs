@@ -39,7 +39,6 @@ public class PotionLedger : MonoBehaviour
                 {
                     if (characterToFind == encryptionAlphabet[j])
                     {
-                        Debug.Log(alphabet[j]);
                         encryptedMessage += alphabet[j];
                     }
                 }

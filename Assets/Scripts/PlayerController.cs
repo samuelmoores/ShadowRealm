@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Resources;
 using UnityEditorInternal;
 using UnityEngine;
@@ -24,6 +25,7 @@ public class PlayerController : MonoBehaviour
     CharacterController characterController;
     Transform cameraTransform;
     Animator animator;
+    HUD hud;
     float speed_current_run;
     float speed_current_rotation;
     float speed_y;
@@ -45,6 +47,7 @@ public class PlayerController : MonoBehaviour
     bool isDead;
 
     /*******************Crafting******************/
+    public List<GameObject> ingrediants;
     bool isCrafting;
 
     /*******************UI******************/
@@ -61,9 +64,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log(health);
-        Debug.Log(unPauseTimer_current);
-
         if(!gameIsPaused && !isDead)
         {
             //let the game run while player is crafting but inhibit movement
@@ -111,6 +111,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
         animator = GetComponent<Animator>();
+        hud = GameObject.Find("Canvas").GetComponent<HUD>();
 
         //-------Movement-----------
         speed_current_run = speed_run;
@@ -134,6 +135,7 @@ public class PlayerController : MonoBehaviour
         unPauseTimer = 0.2f;
         unPauseTimer_current = 0.0f;
 
+        //-------Crafting-----------
 
     }
     private void GetInput(out float horizontal, out float vertical)
@@ -309,6 +311,23 @@ public class PlayerController : MonoBehaviour
     {
         return attackTimer;
     }
+
+    public List<GameObject> GetIngrediants()
+    {
+        return ingrediants;
+    }
+
+    public GameObject GetIngrediant(int index)
+    {
+        return ingrediants[index];
+    }
+
+    public void AddIngrediant(GameObject ingrediant)
+    {
+        ingrediants.Add(ingrediant);
+        hud.AddIngrediant();
+    }
+
     public bool PausedGame()
     {
         return gameIsPaused;
@@ -384,5 +403,7 @@ public class PlayerController : MonoBehaviour
     {
         gameIsPaused = pauseGame;
     }
+
+   
 
 }
