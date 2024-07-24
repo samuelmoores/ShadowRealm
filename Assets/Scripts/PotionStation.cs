@@ -25,13 +25,12 @@ public class PotionStation : MonoBehaviour
 
     //----Crafting-------
     PlayerController player;
-    GameObject Spawned_Poison;
+    int[] playerIngredients;
+    int[] selectedIngredients;
+    bool validInput;
     int inputOrder;
     string[] poisonRecipe;
-    int[] selectedIngredients;
-    int[] playerIngredients;
     bool[] poisonRecipeValid;
-    bool validInput;
 
 
     // Start is called before the first frame update
@@ -39,14 +38,11 @@ public class PotionStation : MonoBehaviour
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         inputOrder = 0;
-
         poisonRecipe = new string[3] { "WATER", "ALCOHOL", "HERB" };
         selectedIngredients = new int[3] { -1, -1, -1 };
         playerIngredients = new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         poisonRecipeValid = new bool[3];
         validInput = true;
-
-
     }
 
     // Update is called once per frame
@@ -55,7 +51,6 @@ public class PotionStation : MonoBehaviour
         if(!player.GetIsCrafting())
         {
             potionStation_UI.SetActive(false);
-
         }
     }
 
@@ -92,7 +87,6 @@ public class PotionStation : MonoBehaviour
             {
                 //check if player has inputed an ingredient twice
                 selectedIngredients[inputOrder] = ingredient;
-                Debug.Log("cur: " + ingredient + " | prev:" + selectedIngredients[inputOrder - 1]);
                 switch (inputOrder)
                 {
                     case 1:
@@ -109,9 +103,6 @@ public class PotionStation : MonoBehaviour
                         break;
                 }
             }
-
-
-            
 
             //Put first selected ingredient in input 1, second to 2 and third to 3
             //if they have not inputed that same ingredient
@@ -136,7 +127,7 @@ public class PotionStation : MonoBehaviour
                     poisonRecipeValid[inputOrder] = true;
                 }
 
-                //let the play go get a new one
+                //let the player go get a new one
                 SelectedIngredient.GetComponent<Ingrediant>().gameObject.SetActive(true);
 
                 //Remove it from players ingredients

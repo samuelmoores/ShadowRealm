@@ -11,23 +11,20 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector] public enum State { Idle, Run, Jump, Attack }
-    [HideInInspector] public enum AttackState { Attack_01, Attack_02, Attack_03, NotAttacking }
+    [HideInInspector] public enum AttackState { Attack_01, Attack_02, Attack_03, Poison, NotAttacking }
 
     State state;
     AttackState attackState;
 
     /*******************Movement******************/
-    //---------public-------
     public float speed_run;
     public float speed_jump;
     public float speed_rotation;
 
-    //--------Movement-------
     CharacterController characterController;
     Transform cameraTransform;
     CinemachineFreeLook cam;
     Animator animator;
-    HUD hud;
     float speed_current_run;
     float speed_current_rotation;
     float speed_y;
@@ -58,6 +55,7 @@ public class PlayerController : MonoBehaviour
 
 
     /*******************UI******************/
+    HUD hud;
     bool gameIsPaused;
     [HideInInspector] public float unPauseTimer;
     [HideInInspector] public float unPauseTimer_current;
@@ -73,7 +71,6 @@ public class PlayerController : MonoBehaviour
     {
         if(!gameIsPaused && !isDead)
         {
-            //let the game run while player is crafting but inhibit movement
             //when exiting crafting guard against jumping 
             if(unPauseTimer_current > 0.0f && !isCrafting)
             {
@@ -82,12 +79,12 @@ public class PlayerController : MonoBehaviour
 
             float horizontal, vertical;
             GetInput(out horizontal, out vertical);
-
             Vector3 moveDirection, velocity;
             Vector2 velocity_run;
             SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
-            
-            if(isCrafting)
+
+            //let the game run while player is crafting but inhibit movement
+            if (isCrafting)
             {
                 moveDirection = Vector3.zero;
                 velocity = Vector3.zero;
@@ -106,6 +103,10 @@ public class PlayerController : MonoBehaviour
         }
         
     }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------Functions-----------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     private void Init()
     {
         //Player State
@@ -148,6 +149,7 @@ public class PlayerController : MonoBehaviour
         numOfIngredients = 0;
 
     }
+    //**********Movement*********
     private void GetInput(out float horizontal, out float vertical)
     {
         horizontal = Input.GetAxis("Horizontal");
@@ -211,6 +213,72 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    private void Move(Vector3 velocity)
+    {
+        characterController.Move(velocity * Time.deltaTime);
+    }
+    private void SetState(Vector2 velocity_run)
+    {
+        animator.SetFloat("runVelocity", velocity_run.magnitude);
+        animator.SetBool("inAir", inAir);
+
+        //if running on ground
+        if(velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
+        {
+            state = State.Run;
+        }
+        else if(inAir) //in air
+        {
+            state = State.Jump;
+
+        }
+        else if(!inAir && attackTimer > 0.0f)
+        {
+            state = State.Attack;
+        }
+        else
+        {
+            state = State.Idle;
+
+        }
+    }
+
+    //**********Input*********
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if(context.performed && characterController.isGrounded && unPauseTimer_current <= 0.0f && !isCrafting)
+        {
+            speed_y = speed_jump;
+            inAirTimer = 0.0f;
+            inAir = true;
+        }
+    }
+    public void Attack(InputAction.CallbackContext context)
+    {
+        if(context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && ! isCrafting)
+        {
+            //Stop Charcter
+            speed_current_run = 0.0f;
+            speed_current_rotation = 0.0f;
+            canAttack = false;
+
+            if(attackTimer <= 0.0f)
+            {
+                attackState = AttackState.Attack_01;
+                attackTimer = animationLength_Attack_01;
+                animator.SetTrigger("Attack_01");
+            }
+            else if(attackState.Equals(AttackState.Attack_01))
+            {
+                attackState = AttackState.Attack_02;
+                attackTimer = animationLength_Attack_02;
+                animator.SetTrigger("Attack_02");
+            }
+
+        }
+    }
+
+    //**********Attacking/Damaging*********
     private void Attack()
     {
         if (attackTimer > 0.0f)
@@ -221,7 +289,7 @@ public class PlayerController : MonoBehaviour
             {
                 case AttackState.Attack_01:
 
-                    if((attackTimer < animationLength_Attack_01 - 0.00f) && (attackTimer > animationLength_Attack_01 - 1.20f))
+                    if((attackTimer < animationLength_Attack_01 - 0.20f) && (attackTimer > animationLength_Attack_01 - 1.00f))
                     {
                         inflictDamage = true;
                     }
@@ -229,8 +297,6 @@ public class PlayerController : MonoBehaviour
                     {
                         inflictDamage = false;
                     }
-
-
 
                     if (attackTimer < animationLength_Attack_01 / 3.0f)
                     {
@@ -273,110 +339,10 @@ public class PlayerController : MonoBehaviour
 
         }
     }
-    private void SetState(Vector2 velocity_run)
-    {
-        animator.SetFloat("runVelocity", velocity_run.magnitude);
-        animator.SetBool("inAir", inAir);
-
-        //if running on ground
-        if(velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
-        {
-            state = State.Run;
-        }
-        else if(inAir) //in air
-        {
-            state = State.Jump;
-
-        }
-        else if(!inAir && attackTimer > 0.0f)
-        {
-            state = State.Attack;
-        }
-        else
-        {
-            state = State.Idle;
-
-        }
-    }
-
-    public void SetIsCrafting(bool value)
-    {
-        isCrafting = value;
-    }
-
-    public bool GetIsCrafting()
-    {
-        return isCrafting;
-    }
-    private void Move(Vector3 velocity)
-    {
-        characterController.Move(velocity * Time.deltaTime);
-    }
-    public State GetState()
-    {
-        return state;
-    }
-    public float GetHealth()
-    {
-        return health;
-    }
-    public float GetAttackTimer()
-    {
-        return attackTimer;
-    }
-
-    public GameObject[] GetIngrediants()
-    {
-        return ingredients;
-    }
-
-    public GameObject GetIngrediant(int index)
-    {
-        return ingredients[index];
-
-    }
-
-    public int GetIngredientCount()
-    {
-        return numOfIngredients;
-    }
-
-    public void AddIngredient(GameObject ingrediant)
-    {
-        ingredients[numOfIngredients++] = ingrediant;
-        hud.AddIngrediantImage(ingrediant);
-    }
-
-    public void UseIngredient(int index)
-    {
-        if(numOfIngredients > 0)
-        {
-            numOfIngredients--;
-            hud.RemoveIngredientImage(index);
-
-        }
-    }
-
-    public void PrintIngedients()
-    {
-        Debug.Log("-----------");
-        for(int i = 0; i < numOfIngredients; i++)
-        {
-            Debug.Log("[" + i + "]" + ingredients[i]);
-        }
-        Debug.Log("-----------");
-
-    }
-
-    public bool PausedGame()
-    {
-        return gameIsPaused;
-    }
     public bool InflictDamage()
     {
         return inflictDamage;
     }
-
     public void TakeDamage(float damageAmount)
     {
         health -= damageAmount;
@@ -405,45 +371,76 @@ public class PlayerController : MonoBehaviour
         }
         
     }
-    public void Jump(InputAction.CallbackContext context)
-    {
-        if(context.performed && characterController.isGrounded && unPauseTimer_current <= 0.0f && !isCrafting)
-        {
-            speed_y = speed_jump;
-            inAirTimer = 0.0f;
-            inAir = true;
-        }
-    }
-    public void Attack(InputAction.CallbackContext context)
-    {
-        if(context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && ! isCrafting)
-        {
-            //Stop Charcter
-            speed_current_run = 0.0f;
-            speed_current_rotation = 0.0f;
-            canAttack = false;
 
-            if(attackTimer <= 0.0f)
-            {
-                attackState = AttackState.Attack_01;
-                attackTimer = animationLength_Attack_01;
-                animator.SetTrigger("Attack_01");
-            }
-            else if(attackState.Equals(AttackState.Attack_01))
-            {
-                attackState = AttackState.Attack_02;
-                attackTimer = animationLength_Attack_02;
-                animator.SetTrigger("Attack_02");
-            }
+    //**********Crafting*********
+    public void AddIngredient(GameObject ingrediant)
+    {
+        ingredients[numOfIngredients++] = ingrediant;
+        hud.AddIngrediantImage(ingrediant);
+    }
+    public void UseIngredient(int index)
+    {
+        if(numOfIngredients > 0)
+        {
+            numOfIngredients--;
+            hud.RemoveIngredientImage(index);
 
         }
     }
+    public void PrintIngedients()
+    {
+        Debug.Log("-----------");
+        for(int i = 0; i < numOfIngredients; i++)
+        {
+            Debug.Log("[" + i + "]" + ingredients[i]);
+        }
+        Debug.Log("-----------");
 
+    }
+
+    //**********UI*********
+    public bool PausedGame()
+    {
+        return gameIsPaused;
+    }
     public void SetGameIsPaused(bool pauseGame)
     {
         gameIsPaused = pauseGame;
     }
 
-   
+    //**********Helper*********
+    public State GetState()
+    {
+        return state;
+    }
+    public float GetHealth()
+    {
+        return health;
+    }
+    public float GetAttackTimer()
+    {
+        return attackTimer;
+    }
+    public bool GetIsCrafting()
+    {
+        return isCrafting;
+    }
+    public GameObject GetIngrediant(int index)
+    {
+        return ingredients[index];
+
+    }
+    public GameObject[] GetIngrediants()
+    {
+        return ingredients;
+    }
+    public int GetIngredientCount()
+    {
+        return numOfIngredients;
+    }
+    public void SetIsCrafting(bool value)
+    {
+        isCrafting = value;
+    }
 
 }
