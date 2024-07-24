@@ -41,6 +41,8 @@ public class PlayerController : MonoBehaviour
     float attackTimer;
     float animationLength_Attack_01;
     float animationLength_Attack_02;
+    float animationLength_DumpPoison;
+
 
     /*******************Damaging******************/
     float health;
@@ -49,7 +51,7 @@ public class PlayerController : MonoBehaviour
     bool isDead;
 
     /*******************Crafting******************/
-    public GameObject testIngrediant;
+    GameObject Potion;
     GameObject[] ingredients;
     bool isCrafting;
     int numOfIngredients;
@@ -135,7 +137,9 @@ public class PlayerController : MonoBehaviour
         attackTimer = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
-        
+        animationLength_DumpPoison = 4.0f;
+
+
         //---------Damage----------
         health = 1.0f;
         isDead = false;
@@ -264,8 +268,10 @@ public class PlayerController : MonoBehaviour
 
             //check if player has poison
             if(hasPoison)
-            {
-                Debug.Log("Dump Poison");
+            { 
+                attackState = AttackState.Poison;
+                attackTimer = animationLength_DumpPoison;
+                animator.SetTrigger("DumpPoison");
                 hasPoison = false;
             }
             else
@@ -273,6 +279,8 @@ public class PlayerController : MonoBehaviour
                 //check if attack cooldown has ended
                 if (attackTimer <= 0.0f)
                 {
+                    Debug.Log("Attack_01");
+
                     attackState = AttackState.Attack_01;
                     attackTimer = animationLength_Attack_01;
                     animator.SetTrigger("Attack_01");
@@ -332,6 +340,22 @@ public class PlayerController : MonoBehaviour
                         canAttack = true;
                     }
 
+                    break;
+
+                case AttackState.Poison:
+                    if (attackTimer < animationLength_DumpPoison - 2.50f && attackTimer > animationLength_DumpPoison - 3.75f)
+                    {
+                        inflictDamage = true;
+                    }
+                    else
+                    {
+                        inflictDamage = false;
+                    }
+                    if (attackTimer < animationLength_DumpPoison / 3.0f)
+                    {
+                        canAttack = true;
+                        Destroy(Potion);
+                    }
                     break;
 
             }
@@ -457,6 +481,11 @@ public class PlayerController : MonoBehaviour
     public void SetHasPoison(bool value)
     {
         hasPoison = value;
+    }
+    public void SetPotion(GameObject NewPotion)
+    {
+        hasPoison = true;
+        Potion = NewPotion;
     }
 
 }

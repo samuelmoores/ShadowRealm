@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 6051190422008358219}
   - component: {fileID: 2780224742332773417}
   - component: {fileID: 4659764243035741184}
-  - component: {fileID: 8616051282248462426}
+  - component: {fileID: 8134726808378501149}
   m_Layer: 0
   m_Name: Poison
-  m_TagString: Untagged
+  m_TagString: Poison
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -84,8 +84,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8616051282248462426
-BoxCollider:
+--- !u!135 &8134726808378501149
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -99,9 +99,9 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 1.59
+  m_Center: {x: 0, y: 1.45, z: 0}

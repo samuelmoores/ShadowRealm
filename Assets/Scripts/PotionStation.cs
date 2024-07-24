@@ -8,10 +8,10 @@ using UnityEngine.UI;
 public class PotionStation : MonoBehaviour
 {
     //---------Potions Spawning-----------------------------
+    public Transform PotionSpawnTransform;
     public GameObject Poison_Prefab;
     GameObject Spawned_Poison_Prefab;
 
-    public Vector3 Spawn_Position;
     //---------Potions-----------------------------
 
 
@@ -153,8 +153,8 @@ public class PotionStation : MonoBehaviour
         if (poisonRecipeValid[0] && poisonRecipeValid[1] && poisonRecipeValid[2])
         {
             ImageToOutput = Image_Poison;
-            Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, player.transform, false);
-            player.SetHasPoison(true);
+            Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, PotionSpawnTransform, false);
+            player.SetPotion(Spawned_Poison_Prefab);
 
         }
         else

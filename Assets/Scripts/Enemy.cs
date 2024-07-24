@@ -171,6 +171,14 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Poison"))
+        {
+            TakeDamage(2.0f);
+        }
+    }
+
     private void TakeDamage(float damageAmount)
     {
         if (player.GetState().Equals(PlayerController.State.Attack))

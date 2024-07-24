@@ -12,6 +12,7 @@ TagManager:
   - Ingrediant
   - Ingredient
   - Herb
+  - Poison
   layers:
   - Default
   - TransparentFX
