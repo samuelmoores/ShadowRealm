@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
     /*******************Crafting******************/
     GameObject Potion;
     GameObject[] ingredients;
+    int[] ingredientIndeces;
     bool isCrafting;
     int numOfIngredients;
 
@@ -152,6 +153,7 @@ public class PlayerController : MonoBehaviour
         //-------Crafting-----------
         ingredients = new GameObject[9];
         numOfIngredients = 0;
+        ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
     }
     //**********Movement*********
@@ -411,14 +413,28 @@ public class PlayerController : MonoBehaviour
     //**********Crafting*********
     public void AddIngredient(GameObject ingrediant)
     {
-        ingredients[numOfIngredients++] = ingrediant;
-        hud.AddIngrediantImage(ingrediant);
+        int index = 0;
+
+        for(int i = 0; i < 9; i++)
+        {
+            if (ingredientIndeces[i] == -1)
+            {
+                ingredientIndeces[i] = i;
+                ingredients[i] = ingrediant;
+                index = i;
+                break;
+            }
+        }
+
+        hud.AddIngrediantImage(ingrediant, index);
+        numOfIngredients++;
     }
     public void UseIngredient(int index)
     {
         if(numOfIngredients > 0)
         {
             numOfIngredients--;
+            ingredientIndeces[index] = -1;
             hud.RemoveIngredientImage(index);
 
         }
@@ -466,6 +482,10 @@ public class PlayerController : MonoBehaviour
         return ingredients[index];
 
     }
+    public int getIngredientIndex(int index)
+    {
+        return ingredientIndeces[index];
+    }
     public GameObject[] GetIngrediants()
     {
         return ingredients;
@@ -482,9 +502,12 @@ public class PlayerController : MonoBehaviour
     {
         hasPoison = value;
     }
-    public void SetPotion(GameObject NewPotion)
+    public void SetPotion(GameObject NewPotion, string potionName)
     {
-        hasPoison = true;
+        if(potionName == "Poison")
+        {
+            hasPoison = true;
+        }
         Potion = NewPotion;
     }
 

@@ -50,10 +50,11 @@ public class HUD : MonoBehaviour
         SetHealthBar();
     }
 
-    public void AddIngrediantImage(GameObject ingrediant)
+    public void AddIngrediantImage(GameObject ingrediant,int index)
     {
         //Take image from ingrdient and put it on the HUD
-        Ingrediant_Images[numOfIngredientImages++].GetComponent<Image>().sprite = ingrediant.GetComponent<Image>().sprite;
+        Ingrediant_Images[index].GetComponent<Image>().sprite = ingrediant.GetComponent<Image>().sprite;
+        numOfIngredientImages++;
     }
 
     public void RemoveIngredientImage(int index)
