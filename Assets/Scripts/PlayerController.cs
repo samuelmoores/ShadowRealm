@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections.Generic;
 using System.Resources;
 using UnityEditorInternal;
@@ -21,14 +22,17 @@ public class PlayerController : MonoBehaviour
     public float speed_jump;
     public float speed_rotation;
 
-    //--------private-------
+    //--------Movement-------
     CharacterController characterController;
     Transform cameraTransform;
+    CinemachineFreeLook cam;
     Animator animator;
     HUD hud;
     float speed_current_run;
     float speed_current_rotation;
     float speed_y;
+    float speed_camera_x;
+    float speed_camera_y;
     bool inAir;
     float jumpTimer;
     float inAirTimer;
@@ -91,17 +95,14 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                cam.m_XAxis.m_MaxSpeed = speed_camera_x;
+                cam.m_YAxis.m_MaxSpeed = speed_camera_y;
                 Run(moveDirection);
-
                 JumpOrFall();
-
                 Attack();
-
                 Move(velocity);
             }
-            
             SetState(velocity_run);
-
         }
         
     }
@@ -115,6 +116,7 @@ public class PlayerController : MonoBehaviour
         cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
         animator = GetComponent<Animator>();
         hud = GameObject.Find("Canvas").GetComponent<HUD>();
+        cam = GameObject.Find("ThirdPersonCamera").GetComponent<CinemachineFreeLook>();
 
         //-------Movement-----------
         speed_current_run = speed_run;
@@ -122,6 +124,9 @@ public class PlayerController : MonoBehaviour
         inAir = false;
         inAirTimer = 0.0f;
         jumpTimer = 0.5f;
+        speed_camera_x = cam.m_XAxis.m_MaxSpeed;
+        speed_camera_y = cam.m_YAxis.m_MaxSpeed;
+
 
         //-------Attacking-----------
         attackTimer = 0.0f;
@@ -152,6 +157,9 @@ public class PlayerController : MonoBehaviour
         {
             horizontal = 0.0f;
             vertical = 0.0f;
+            cam.m_XAxis.m_MaxSpeed = 0.0f;
+            cam.m_YAxis.m_MaxSpeed = 0.0f;
+
         }
 
     }
