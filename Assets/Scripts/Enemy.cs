@@ -58,15 +58,14 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
-        Debug.Log(distanceFromPlayer);
+        distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
 
         if (startTimer > 0.0f)
         {
             startTimer -= Time.deltaTime;
         }
 
-        if(!isDead && distanceFromPlayer < 20.0f)
+        if (!isDead && distanceFromPlayer < 10.0f)
         {
             Move();
 
@@ -87,7 +86,6 @@ public class Enemy : MonoBehaviour
     private void Move()
     {
         velocity = agent.velocity.magnitude;
-        distanceFromPlayer = agent.remainingDistance;
         agent.destination = player.transform.position;
 
         Vector3 moveDirection = player.transform.position - transform.position;
@@ -111,6 +109,7 @@ public class Enemy : MonoBehaviour
 
     private void Attack()
     {
+
         if (CanAttack())
         {
             animator.SetTrigger("Attack_01");
@@ -135,11 +134,13 @@ public class Enemy : MonoBehaviour
     private bool CanAttack()
     {
         bool enemyStopped = velocity <= 0.0f;
-        bool closeToPlayer = distanceFromPlayer < 2.0f;
+        bool closeToPlayer = distanceFromPlayer <= agent.stoppingDistance;
         bool gameStarted = startTimer <= 0.0f;
         bool notAlreadyAttacking = !isAttacking;
 
         bool canAttack = enemyStopped && closeToPlayer && gameStarted && notAlreadyAttacking;
+
+        Debug.Log(agent.remainingDistance);
 
         return canAttack;
     }
@@ -169,7 +170,6 @@ public class Enemy : MonoBehaviour
         if (other.CompareTag("PlayerSword"))
         {
             TakeDamage(0.6f);
-
         }
     }
 

@@ -31,7 +31,6 @@ public class PotionStation : MonoBehaviour
     int[] selectedIngredients;
     int[] playerIngredients;
     bool[] poisonRecipeValid;
-    int previousIngredient;
     bool validInput;
 
 
@@ -40,7 +39,6 @@ public class PotionStation : MonoBehaviour
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         inputOrder = 0;
-        previousIngredient = -1;
 
         poisonRecipe = new string[3] { "WATER", "ALCOHOL", "HERB" };
         selectedIngredients = new int[3] { -1, -1, -1 };

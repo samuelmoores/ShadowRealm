@@ -221,7 +221,7 @@ public class PlayerController : MonoBehaviour
             {
                 case AttackState.Attack_01:
 
-                    if(attackTimer < animationLength_Attack_01 - 0.50 && attackTimer > animationLength_Attack_01 - 0.90)
+                    if((attackTimer < animationLength_Attack_01 - 0.00f) && (attackTimer > animationLength_Attack_01 - 1.20f))
                     {
                         inflictDamage = true;
                     }
