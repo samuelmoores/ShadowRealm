@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 public class Enemy : MonoBehaviour
 {
@@ -58,7 +59,7 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         float distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
-        //Debug.Log(distanceFromPlayer);
+        Debug.Log(distanceFromPlayer);
 
         if (startTimer > 0.0f)
         {
@@ -88,6 +89,13 @@ public class Enemy : MonoBehaviour
         velocity = agent.velocity.magnitude;
         distanceFromPlayer = agent.remainingDistance;
         agent.destination = player.transform.position;
+
+        Vector3 moveDirection = player.transform.position - transform.position;
+        moveDirection.Normalize();
+        moveDirection.y = 0.0f;
+
+        Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, agent.angularSpeed * Time.deltaTime);
 
         //let the enemy finish the attack if they player ran away
         if (isAttacking || damaged)
