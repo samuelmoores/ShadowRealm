@@ -16,6 +16,8 @@ public class HUD : MonoBehaviour
     public Slider Slider_Sensitivity;
     public TextMeshProUGUI Text_EncryptionAlphabet;
     public TextMeshProUGUI Text_EncryptedMessage;
+    public TextMeshProUGUI Text_Alphabet;
+
     public GameObject[] Ingrediant_Images;
     public Sprite Image_None;
     //-----------DRAG THESE ITEMS INTO THE COMPONENT---------------
@@ -37,6 +39,7 @@ public class HUD : MonoBehaviour
         Toggle_InvertCamera.isOn = true;
         Slider_Sensitivity.value = 0.5f;
         Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet_display;
+        Text_Alphabet.text = potionLedger.alphabet_display;
         Text_EncryptedMessage.text = potionLedger.encryptedMessage;
         numOfIngredientImages = 0;
     }

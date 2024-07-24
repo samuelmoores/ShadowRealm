@@ -6,7 +6,6 @@ using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
     //---------public---------------
-    public bool isEnabled;
     public float damageTimer;
     public float attackCoolDown;
 
@@ -58,12 +57,15 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
+        Debug.Log(distanceFromPlayer);
+
         if (startTimer > 0.0f)
         {
             startTimer -= Time.deltaTime;
         }
 
-        if(!isDead && isEnabled)
+        if(!isDead && distanceFromPlayer < 20.0f)
         {
             Move();
 

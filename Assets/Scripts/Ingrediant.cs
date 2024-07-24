@@ -13,7 +13,7 @@ public class Ingrediant : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
-        rotateSpeed = Random.Range(10, 400) * 0.0f;
+        rotateSpeed = Random.Range(10, 60);
         isActive = true;
     }
 

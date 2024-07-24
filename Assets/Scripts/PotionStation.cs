@@ -72,6 +72,11 @@ public class PotionStation : MonoBehaviour
         //Does player have any?
         if (player.GetIngredientCount() > 0)
         {
+            if(inputOrder == 0)
+            {
+                ClearInput();
+
+            }
             //Put first selected ingredient in input 1, second to 2 and third to 3
             Inputs[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingredient).GetComponent<Image>().sprite;
 
@@ -103,7 +108,6 @@ public class PotionStation : MonoBehaviour
             //Once all three inputs are filled, show the output
             if (inputOrder == 3)
             {
-                ClearInput();
                 SetOutput();
                 inputOrder = 0;
             }
