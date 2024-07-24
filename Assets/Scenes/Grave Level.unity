@@ -25584,8 +25584,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 698967765}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0560885, y: -0.1559927, z: 0.008872507, w: -0.9861246}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.056088503, y: -0.15599263, z: 0.008872502, w: -0.9861246}
+  m_LocalPosition: {x: -0.000008821487, y: 0, z: -0.00006151199}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -25663,8 +25663,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 700293887}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.020230561, y: -0.156212, z: 0.003200224, w: -0.98751116}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.02023056, y: -0.15621196, z: 0.0032002223, w: -0.9875112}
+  m_LocalPosition: {x: -0.0000021457672, y: 0, z: -0.000015735626}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -32617,8 +32617,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 889251214}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.038142122, y: -0.15612827, z: 0.00603361, w: -0.98698163}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.03814213, y: -0.15612818, z: 0.006033608, w: -0.98698163}
+  m_LocalPosition: {x: -0.0000021457672, y: 0, z: -0.000015735626}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -33129,8 +33129,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.0053639915, y: 0.98372895, z: -0.029796883, w: -0.17708948}
-  m_LocalPosition: {x: 35.13615, y: 6.500155, z: 107.79712}
+  m_LocalRotation: {x: -0.005363991, y: 0.983729, z: -0.029796889, w: -0.17708942}
+  m_LocalPosition: {x: -3.133851, y: 6.500155, z: 113.41712}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -33503,7 +33503,7 @@ Transform:
   m_GameObject: {fileID: 1008396859}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.7313089, y: 0.64015484, z: -5.335392}
+  m_LocalPosition: {x: -1.731308, y: 0.64015484, z: -5.335392}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -46202,7 +46202,7 @@ Transform:
   m_GameObject: {fileID: 1378301845}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.9997749, z: -0, w: 0.021221723}
-  m_LocalPosition: {x: 33.18, y: 5.86, z: 102.54}
+  m_LocalPosition: {x: -5.09, y: 5.86, z: 108.16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -47354,8 +47354,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92ca4d78f9224264c93f051cdb8e7f79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Poison_Prefab: {fileID: 6817594650249176286, guid: e308e2e7fe2e5a14aab934dc71dcb613, type: 3}
-  Spawn_Position: {x: -13.6, y: 5.72, z: 97.366}
+  Poison_Prefab: {fileID: 972745240622602686, guid: e308e2e7fe2e5a14aab934dc71dcb613, type: 3}
+  Spawn_Position: {x: 0, y: 0, z: 0}
   potionStation_UI: {fileID: 483373733}
   firstSelectedButton: {fileID: 1981678179}
   Inputs:
@@ -47363,7 +47363,7 @@ MonoBehaviour:
   - {fileID: 309951600}
   - {fileID: 1333734750}
   Output: {fileID: 174303944}
-  ImageToOutput: {fileID: 21300000, guid: 06a251bad68143a4491aa847c7f8149c, type: 3}
+  ImageToOutput: {fileID: 0}
   Image_None: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
   Image_Poison: {fileID: 21300000, guid: 5f450e95cbde14240b30ab4927a78dfd, type: 3}
 --- !u!1 &1497875464

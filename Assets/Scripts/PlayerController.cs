@@ -35,11 +35,12 @@ public class PlayerController : MonoBehaviour
     float inAirTimer;
 
     /*******************Attacking******************/
-    float attackTimer;
     bool canAttack;
+    bool inflictDamage;
+    bool hasPoison;
+    float attackTimer;
     float animationLength_Attack_01;
     float animationLength_Attack_02;
-    bool inflictDamage;
 
     /*******************Damaging******************/
     float health;
@@ -128,10 +129,10 @@ public class PlayerController : MonoBehaviour
         speed_camera_x = cam.m_XAxis.m_MaxSpeed;
         speed_camera_y = cam.m_YAxis.m_MaxSpeed;
 
-
         //-------Attacking-----------
-        attackTimer = 0.0f;
         canAttack = true;
+        hasPoison = false;
+        attackTimer = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
         
@@ -260,21 +261,31 @@ public class PlayerController : MonoBehaviour
             //Stop Charcter
             speed_current_run = 0.0f;
             speed_current_rotation = 0.0f;
+
+            //check if player has poison
+            if(hasPoison)
+            {
+                Debug.Log("Dump Poison");
+                hasPoison = false;
+            }
+            else
+            {
+                //check if attack cooldown has ended
+                if (attackTimer <= 0.0f)
+                {
+                    attackState = AttackState.Attack_01;
+                    attackTimer = animationLength_Attack_01;
+                    animator.SetTrigger("Attack_01");
+                }
+                else if (attackState.Equals(AttackState.Attack_01))
+                {
+                    attackState = AttackState.Attack_02;
+                    attackTimer = animationLength_Attack_02;
+                    animator.SetTrigger("Attack_02");
+                }
+            }
+
             canAttack = false;
-
-            if(attackTimer <= 0.0f)
-            {
-                attackState = AttackState.Attack_01;
-                attackTimer = animationLength_Attack_01;
-                animator.SetTrigger("Attack_01");
-            }
-            else if(attackState.Equals(AttackState.Attack_01))
-            {
-                attackState = AttackState.Attack_02;
-                attackTimer = animationLength_Attack_02;
-                animator.SetTrigger("Attack_02");
-            }
-
         }
     }
 
@@ -322,6 +333,7 @@ public class PlayerController : MonoBehaviour
                     }
 
                     break;
+
             }
         }
         else
@@ -441,6 +453,10 @@ public class PlayerController : MonoBehaviour
     public void SetIsCrafting(bool value)
     {
         isCrafting = value;
+    }
+    public void SetHasPoison(bool value)
+    {
+        hasPoison = value;
     }
 
 }

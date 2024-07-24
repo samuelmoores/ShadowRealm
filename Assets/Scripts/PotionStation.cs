@@ -9,6 +9,8 @@ public class PotionStation : MonoBehaviour
 {
     //---------Potions Spawning-----------------------------
     public GameObject Poison_Prefab;
+    GameObject Spawned_Poison_Prefab;
+
     public Vector3 Spawn_Position;
     //---------Potions-----------------------------
 
@@ -21,7 +23,6 @@ public class PotionStation : MonoBehaviour
     public Sprite ImageToOutput;
     public Sprite Image_None;
     public Sprite Image_Poison;
-
 
     //----Crafting-------
     PlayerController player;
@@ -38,7 +39,7 @@ public class PotionStation : MonoBehaviour
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         inputOrder = 0;
-        poisonRecipe = new string[3] { "WATER", "ALCOHOL", "HERB" };
+        poisonRecipe = new string[3] { "Water", "Alcohol", "Herb" };
         selectedIngredients = new int[3] { -1, -1, -1 };
         playerIngredients = new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         poisonRecipeValid = new bool[3];
@@ -152,7 +153,8 @@ public class PotionStation : MonoBehaviour
         if (poisonRecipeValid[0] && poisonRecipeValid[1] && poisonRecipeValid[2])
         {
             ImageToOutput = Image_Poison;
-            GameObject.Instantiate(Poison_Prefab, Spawn_Position, Quaternion.identity);
+            Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, player.transform, false);
+            player.SetHasPoison(true);
 
         }
         else
@@ -175,6 +177,10 @@ public class PotionStation : MonoBehaviour
     void ClearOutput()
     {
         Output.GetComponent<Image>().sprite = Image_None;
+        for(int i = 0; i < 3; i++)
+        {
+            poisonRecipeValid[i] = false;
+        }
     }
 
     private void OnTriggerExit(Collider other)

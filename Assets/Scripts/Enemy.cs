@@ -140,8 +140,6 @@ public class Enemy : MonoBehaviour
 
         bool canAttack = enemyStopped && closeToPlayer && gameStarted && notAlreadyAttacking;
 
-        Debug.Log(agent.remainingDistance);
-
         return canAttack;
     }
 
