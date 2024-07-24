@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -27,8 +28,11 @@ public class PotionStation : MonoBehaviour
     GameObject Spawned_Poison;
     int inputOrder;
     string[] poisonRecipe;
-    string[] selectedIngredients;
+    int[] selectedIngredients;
+    int[] playerIngredients;
     bool[] poisonRecipeValid;
+    int previousIngredient;
+    bool validInput;
 
 
     // Start is called before the first frame update
@@ -36,10 +40,13 @@ public class PotionStation : MonoBehaviour
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         inputOrder = 0;
+        previousIngredient = -1;
 
         poisonRecipe = new string[3] { "WATER", "ALCOHOL", "HERB" };
-        selectedIngredients = new string[3];
+        selectedIngredients = new int[3] { -1, -1, -1 };
+        playerIngredients = new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         poisonRecipeValid = new bool[3];
+        validInput = true;
 
 
     }
@@ -66,44 +73,81 @@ public class PotionStation : MonoBehaviour
         }
     }
 
-    //when ingredient is clicked
+    //----------------------------when ingredient is clicked------------------------------
     public void SelectIngrediant(int ingredient)
     {
         //Does player have any?
         if (player.GetIngredientCount() > 0)
         {
+            validInput = true;
+
+            //is this the first input?
             if(inputOrder == 0)
             {
                 ClearInput();
+                selectedIngredients[0] = ingredient;
+                selectedIngredients[1] = -1;
+                selectedIngredients[2] = -1;
 
             }
+            else
+            {
+                //check if player has inputed an ingredient twice
+                selectedIngredients[inputOrder] = ingredient;
+                Debug.Log("cur: " + ingredient + " | prev:" + selectedIngredients[inputOrder - 1]);
+                switch (inputOrder)
+                {
+                    case 1:
+                        if (selectedIngredients[0] == ingredient)
+                        {
+                            validInput = false;
+                        }
+                        break;
+                    case 2:
+                        if (ingredient == selectedIngredients[0] || ingredient == selectedIngredients[1])
+                        {
+                            validInput = false;
+                        }
+                        break;
+                }
+            }
+
+
+            
+
             //Put first selected ingredient in input 1, second to 2 and third to 3
-            Inputs[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingredient).GetComponent<Image>().sprite;
-
-            GameObject SelectedIngredient = player.GetIngrediant(ingredient);
-
-            if (SelectedIngredient.name == ("Water"))
+            //if they have not inputed that same ingredient
+            if(validInput && playerIngredients[ingredient] != -1)
             {
-                poisonRecipeValid[inputOrder] = true;
+                Inputs[inputOrder].GetComponent<Image>().sprite = player.GetIngrediant(ingredient).GetComponent<Image>().sprite;
+
+                GameObject SelectedIngredient = player.GetIngrediant(ingredient);
+
+                if (SelectedIngredient.name == poisonRecipe[0])
+                {
+                    poisonRecipeValid[inputOrder] = true;
+                }
+
+                if (SelectedIngredient.name == poisonRecipe[1])
+                {
+                    poisonRecipeValid[inputOrder] = true;
+                }
+
+                if (SelectedIngredient.name == poisonRecipe[2])
+                {
+                    poisonRecipeValid[inputOrder] = true;
+                }
+
+                //let the play go get a new one
+                SelectedIngredient.GetComponent<Ingrediant>().gameObject.SetActive(true);
+
+                //Remove it from players ingredients
+                player.UseIngredient(ingredient);
+                playerIngredients[ingredient] = -1;
+
+                inputOrder++;
             }
-
-            if (SelectedIngredient.name == ("Alcohol"))
-            {
-                poisonRecipeValid[inputOrder] = true;
-            }
-
-            if (SelectedIngredient.name == ("Herb"))
-            {
-                poisonRecipeValid[inputOrder] = true;
-            }
-
-            //let the play go get a new one
-            SelectedIngredient.GetComponent<Ingrediant>().gameObject.SetActive(true);
-
-            //Remove it from players ingredients
-            player.UseIngredient(ingredient);
-
-            inputOrder++;
+            
 
             //Once all three inputs are filled, show the output
             if (inputOrder == 3)
@@ -150,6 +194,11 @@ public class PotionStation : MonoBehaviour
         {
             potionStation_UI.SetActive(false);
             ClearOutput();
+            ClearInput();
+            for(int i = 0; i < 9; i++)
+            {
+                playerIngredients[i] = i;
+            }
         }
     }
 }

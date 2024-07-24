@@ -58,7 +58,7 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         float distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
-        Debug.Log(distanceFromPlayer);
+        //Debug.Log(distanceFromPlayer);
 
         if (startTimer > 0.0f)
         {

@@ -58,7 +58,6 @@ public class HUD : MonoBehaviour
 
     public void RemoveIngredientImage(int index)
     {
-        Debug.Log("HUD remove image at: " + index);
         Ingrediant_Images[index].GetComponent<Image>().sprite = Image_None;
         numOfIngredientImages--;
 
