@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     [HideInInspector] public enum State { Idle, Run, Jump, Attack }
-    [HideInInspector] public enum AttackState { Attack_01, Attack_02, Attack_03, Poison, NotAttacking }
+    [HideInInspector] public enum AttackState { Attack_01, Attack_02, Attack_03, Poison, ShadowFist, NotAttacking }
 
     State state;
     AttackState attackState;
@@ -43,6 +43,7 @@ public class PlayerController : MonoBehaviour
     float animationLength_Attack_01;
     float animationLength_Attack_02;
     float animationLength_DumpPoison;
+    float animationLength_ShadowFist;
 
 
     /*******************Damaging******************/
@@ -136,11 +137,13 @@ public class PlayerController : MonoBehaviour
         //-------Attacking-----------
         canAttack = true;
         hasPoison = false;
-        shadowRealmActivated = false;
+        shadowRealmActivated = true;
         attackTimer = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
         animationLength_DumpPoison = 4.0f;
+        animationLength_ShadowFist = 1.1f;
+
 
 
         //---------Damage----------
@@ -278,6 +281,12 @@ public class PlayerController : MonoBehaviour
                 animator.SetTrigger("DumpPoison");
                 hasPoison = false;
             }
+            else if(shadowRealmActivated)
+            {
+                attackState = AttackState.ShadowFist;
+                attackTimer = animationLength_ShadowFist;
+                animator.SetTrigger("ShadowFist");
+            }
             else
             {
                 //check if attack cooldown has ended
@@ -359,6 +368,21 @@ public class PlayerController : MonoBehaviour
                     {
                         canAttack = true;
                         Destroy(Potion);
+                    }
+                    break;
+
+                case AttackState.ShadowFist:
+                    if (attackTimer < animationLength_ShadowFist - 0.10f && attackTimer > animationLength_ShadowFist - 1.0f)
+                    {
+                        inflictDamage = true;
+                    }
+                    else
+                    {
+                        inflictDamage = false;
+                    }
+                    if (attackTimer < animationLength_ShadowFist / 3.0f)
+                    {
+                        canAttack = true;
                     }
                     break;
 

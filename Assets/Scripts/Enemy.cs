@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class Enemy : MonoBehaviour
 {
     //---------public---------------
+    public GameObject Chest;
     public float damageTimer;
     public float attackCoolDown;
 
@@ -15,6 +16,7 @@ public class Enemy : MonoBehaviour
     PlayerController player;
     Animator animator;
     NavMeshAgent agent;
+    Rigidbody[] ragdollColliders;
 
     //------------Damage-------------
     float damageTimer_current;
@@ -40,6 +42,13 @@ public class Enemy : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         control = GetComponent<CharacterController>();
 
+        ragdollColliders = this.gameObject.GetComponentsInChildren<Rigidbody>();
+
+        foreach (var rb in ragdollColliders)
+        {
+            rb.isKinematic = true;
+        }
+
         //Damage
         damaged = false;
         damageTimer_current = damageTimer;
@@ -58,27 +67,31 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
-
-        if (startTimer > 0.0f)
+        if(!isDead)
         {
-            startTimer -= Time.deltaTime;
+            distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
+
+            if (startTimer > 0.0f)
+            {
+                startTimer -= Time.deltaTime;
+            }
+
+            if (distanceFromPlayer < 10.0f)
+            {
+                Move();
+
+                Attack();
+
+                Damage();
+
+                animator.SetFloat("runVelocity", velocity);
+            }
+            else
+            {
+                agent.isStopped = true;
+            }
         }
-
-        if (!isDead && distanceFromPlayer < 10.0f)
-        {
-            Move();
-
-            Attack();
-
-            Damage();
-
-            animator.SetFloat("runVelocity", velocity);
-        }
-        else
-        {
-            agent.isStopped = true;
-        }
+        
 
         
     }
@@ -200,9 +213,44 @@ public class Enemy : MonoBehaviour
                 if(health <= 0.0f)
                 {
                     isDead = true;
-                    animator.SetBool("isDead", true);
+
+                    if(player.HasActivatedShadowRealm())
+                    {
+                        animator.enabled = false;
+                        GetComponent<CharacterController>().enabled = false;
+                        CapsuleCollider[] cols = GetComponents<CapsuleCollider>();
+
+                        for(int i = 0; i < 2; i++)
+                        {
+                            cols[i].enabled = false;
+                        }
+
+                        agent.enabled = false;
+
+                        foreach (var rb in ragdollColliders)
+                        {
+                            rb.isKinematic = false;
+                        }
+
+                        Vector3 shadowForce = transform.position - player.transform.position;
+                        shadowForce.Normalize();
+                        shadowForce.y = 0.0f;
+
+                        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 30000f);
+                        Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 30000f);
+
+
+                    }
+                    else
+                    {
+                        animator.SetBool("isDead", true);
+
+                    }
+
                 }
             }
         }
     }
+
+
 }
