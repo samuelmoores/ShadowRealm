@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     float inAirTimer;
 
     /*******************Attacking******************/
+    public GameObject ShadowFist;
     bool canAttack;
     bool inflictDamage;
     bool hasPoison;
@@ -372,6 +373,8 @@ public class PlayerController : MonoBehaviour
                     break;
 
                 case AttackState.ShadowFist:
+                    ShadowFist.SetActive(true);
+                    ShadowFist.transform.localScale += new Vector3(Time.deltaTime, Time.deltaTime, Time.deltaTime);
                     if (attackTimer < animationLength_ShadowFist - 0.10f && attackTimer > animationLength_ShadowFist - 1.0f)
                     {
                         inflictDamage = true;
@@ -382,6 +385,10 @@ public class PlayerController : MonoBehaviour
                     }
                     if (attackTimer < animationLength_ShadowFist / 3.0f)
                     {
+                        ShadowFist.SetActive(false);
+
+                        ShadowFist.transform.localScale = new Vector3(0.03f, 0.03f, 0.03f);
+
                         canAttack = true;
                     }
                     break;
