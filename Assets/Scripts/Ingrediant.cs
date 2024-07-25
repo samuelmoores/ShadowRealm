@@ -22,6 +22,7 @@ public class Ingrediant : MonoBehaviour
     {
         transform.Rotate(Vector3.up, Time.deltaTime * rotateSpeed);
         
+        
     }
 
     public void SetActive(bool value)

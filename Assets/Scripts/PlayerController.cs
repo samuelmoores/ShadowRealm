@@ -138,14 +138,12 @@ public class PlayerController : MonoBehaviour
         //-------Attacking-----------
         canAttack = true;
         hasPoison = false;
-        shadowRealmActivated = true;
+        shadowRealmActivated = false;
         attackTimer = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
         animationLength_DumpPoison = 4.0f;
         animationLength_ShadowFist = 1.1f;
-
-
 
         //---------Damage----------
         health = 1.0f;
@@ -374,7 +372,7 @@ public class PlayerController : MonoBehaviour
 
                 case AttackState.ShadowFist:
                     ShadowFist.SetActive(true);
-                    ShadowFist.transform.localScale += new Vector3(Time.deltaTime, Time.deltaTime, Time.deltaTime);
+                    ShadowFist.transform.localScale += new Vector3(Time.deltaTime * 300.0f, Time.deltaTime * 300.0f, Time.deltaTime * 300.0f);
                     if (attackTimer < animationLength_ShadowFist - 0.10f && attackTimer > animationLength_ShadowFist - 1.0f)
                     {
                         inflictDamage = true;
@@ -383,13 +381,17 @@ public class PlayerController : MonoBehaviour
                     {
                         inflictDamage = false;
                     }
+
                     if (attackTimer < animationLength_ShadowFist / 3.0f)
+                    {
+                        canAttack = true;
+                    }
+
+                    if(attackTimer < animationLength_ShadowFist / 4.0f)
                     {
                         ShadowFist.SetActive(false);
 
-                        ShadowFist.transform.localScale = new Vector3(0.03f, 0.03f, 0.03f);
-
-                        canAttack = true;
+                        ShadowFist.transform.localScale = new Vector3(2.03f, 2.03f, 2.03f);
                     }
                     break;
 
