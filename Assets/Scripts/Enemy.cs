@@ -165,9 +165,17 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("PlayerSword"))
+        if (other.CompareTag("PlayerWeapon"))
         {
-            TakeDamage(0.6f);
+            if(player.HasActivatedShadowRealm())
+            {
+                TakeDamage(0.6f);
+            }
+            else
+            {
+                TakeDamage(0.3f);
+
+            }
         }
     }
 

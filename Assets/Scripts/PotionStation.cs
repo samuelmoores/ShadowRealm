@@ -250,6 +250,7 @@ public class PotionStation : MonoBehaviour
                 ImageToOutput = Image_ShadowRealm;
                 Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, PotionSpawnTransform, false);
                 player.SetPotion(Spawned_ShadowRealm_Prefab, recipeName_current);
+                player.ActivateShadowRealm();
             }
             
         }

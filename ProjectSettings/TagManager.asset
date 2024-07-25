@@ -13,6 +13,7 @@ TagManager:
   - Ingredient
   - Herb
   - Poison
+  - PlayerWeapon
   layers:
   - Default
   - TransparentFX

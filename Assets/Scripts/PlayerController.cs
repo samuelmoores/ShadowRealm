@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     bool canAttack;
     bool inflictDamage;
     bool hasPoison;
+    bool shadowRealmActivated;
     float attackTimer;
     float animationLength_Attack_01;
     float animationLength_Attack_02;
@@ -135,6 +136,7 @@ public class PlayerController : MonoBehaviour
         //-------Attacking-----------
         canAttack = true;
         hasPoison = false;
+        shadowRealmActivated = false;
         attackTimer = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
@@ -493,6 +495,14 @@ public class PlayerController : MonoBehaviour
     public int GetIngredientCount()
     {
         return numOfIngredients;
+    }
+    public void ActivateShadowRealm()
+    {
+        shadowRealmActivated = true;
+    }
+    public bool HasActivatedShadowRealm()
+    {
+        return shadowRealmActivated;
     }
     public void SetIsCrafting(bool value)
     {
