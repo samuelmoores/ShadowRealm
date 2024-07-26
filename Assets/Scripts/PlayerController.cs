@@ -57,6 +57,8 @@ public class PlayerController : MonoBehaviour
     int damageCount = 0;
     int damageAnimation;
     bool isDead;
+    float damageTimer;
+    bool hit;
 
     /*******************Crafting******************/
     GameObject Potion;
@@ -111,6 +113,8 @@ public class PlayerController : MonoBehaviour
         //---------Damage----------
         health = 1.0f;
         isDead = false;
+        damageTimer = 0.0f;
+        hit = false;
 
         //-------UI-----------
         gameIsPaused = false;
@@ -157,6 +161,11 @@ public class PlayerController : MonoBehaviour
                 {
                     Attack();
 
+                }
+
+                if(isDamaged)
+                {
+                    RunDamageTimer(1.3f);
                 }
 
                 Move(velocity);
@@ -241,7 +250,6 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetFloat("runVelocity", velocity_run.magnitude);
         animator.SetBool("isAttacking", isAttacking);
-        animator.SetBool("isDamaged", isDamaged);
 
         //if running on ground
         if (velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
@@ -278,25 +286,29 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && !isCrafting)
         {
-            attackTimer = 0.0f;
-            canAttack = false;
-            isAttacking = true;
-
-            attackNumber++;
-            if(attackNumber > numOfAttacks)
+            if(!isDamaged)
             {
-                attackNumber = 1;
-            }
+                attackTimer = 0.0f;
+                canAttack = false;
+                isAttacking = true;
 
-            switch (attackNumber)
-            {
-                case 1:
-                    animator.SetTrigger("Attack_01");
-                    break;
-                case 2:
-                    animator.SetTrigger("Attack_02");
-                    break;
+                attackNumber++;
+                if (attackNumber > numOfAttacks)
+                {
+                    attackNumber = 1;
+                }
+
+                switch (attackNumber)
+                {
+                    case 1:
+                        animator.SetTrigger("Attack_01");
+                        break;
+                    case 2:
+                        animator.SetTrigger("Attack_02");
+                        break;
+                }
             }
+            
         }
     }
 
@@ -357,33 +369,69 @@ public class PlayerController : MonoBehaviour
     {
         return !isDead;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("ShadowFist"))
+        {
+            hit = true;
+            Debug.Log("hit");
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("ShadowFist"))
+        {
+            hit = false;
+        }
+    }
     public void TakeDamage(float damageAmount)
     {
-        health -= damageAmount;
-        damageCount++;
-        damageAnimation = 1;
-
-        if (health <= 0.0f)
+        if(hit)
         {
-            isDead = true;
-            animator.SetBool("isDead", true);
+            health -= damageAmount;
+            damageCount++;
+            damageAnimation = 1;
+            isDamaged = true;
+            damageTimer = 0.0f;
+
+
+            if (health <= 0.0f)
+            {
+                isDead = true;
+                animator.SetBool("isDead", true);
+            }
+            else
+            {
+                switch (damageAnimation)
+                {
+                    case 1:
+                        animator.SetTrigger("Damage");
+                        break;
+                }
+            }
+        }
+        
+
+    }
+
+    void RunDamageTimer(float animationLength)
+    {
+        if(damageTimer < animationLength)
+        {
+            damageTimer += Time.deltaTime;
+            speed_run = 0.0f;
+            speed_rotation = 0.0f;
         }
         else
         {
-            switch (damageAnimation)
-            {
-                case 1:
-                    animator.SetTrigger("Damage_01");
-                    break;
-                case 2:
-                    animator.SetTrigger("Damage_02");
-                    break;
-                case 3:
-                    animator.SetTrigger("Damage_03");
-                    break;
-            }
-        }
+            isDamaged = false;
 
+            speed_run = default_speed_run;
+            speed_rotation = default_speed_rotation;
+            damageTimer = 0.0f;
+        }
     }
 
     //**********Crafting*********

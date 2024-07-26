@@ -29,6 +29,7 @@ public class King : MonoBehaviour
     bool isAttacking;
     bool canAttack;
     bool isInflictingDamage;
+    bool goToNextAttack;
 
     //----Damage-----
     float damageTimer;
@@ -48,7 +49,7 @@ public class King : MonoBehaviour
         //-----attacking----
         isInflictingDamage = false;
         numOfAttacks = 3;
-        currentAttack = -1;
+        currentAttack = 0;
 
 
         //----takingDamage----
@@ -68,6 +69,7 @@ public class King : MonoBehaviour
         isAttacking = false;
         isStanding = false;
         playerFound = false;
+        goToNextAttack = true;
     }
 
     // Update is called once per frame
@@ -80,39 +82,37 @@ public class King : MonoBehaviour
         {
             agent.destination = player.transform.position;
             RotateTowardsPlayer();
-            
             healthBar.value = health;
+            animator.SetBool("isAttacking", isAttacking);
+            animator.SetInteger("AttackNumber", currentAttack);
 
-            if (!player.IsAlive())
+            if (distanceFromPlayer <= agent.stoppingDistance)
             {
-                isAttacking = false;
+                isAttacking = true;
             }
-
-            if (distanceFromPlayer <= agent.stoppingDistance && !canAttack)
+            else
             {
-                canAttack = true;
                 currentAttack = 0;
-            }
-            else if(!canAttack)
-            {
-                currentAttack = -1;
                 isAttacking = false;
                 canAttack = false;
                 agent.isStopped = false;
             }
 
-            if(canAttack && player.IsAlive())
+            if(isAttacking && player.IsAlive())
             {
                 switch(currentAttack)
                 {
                     case 0:
-                        Attack(2.733f, "AttackCombo01", 0.8f, 1.0f);
+
+                        Attack(2.733f);
                         break;
                     case 1:
-                        Attack(3.167f, "Attack360", 0.7f, 1.0f);
+
+                        Attack(3.167f);
                         break;
                     case 2:
-                        Attack(2.267f, "AttackDownward", 0.2f, 0.3f);
+
+                        Attack(2.267f);
                         break;
                 }
             }
@@ -120,6 +120,11 @@ public class King : MonoBehaviour
             if(isDamaged)
             {
                 RunDamageTimer(0.967f);
+            }
+
+            if (!player.IsAlive())
+            {
+                isAttacking = false;
             }
         }
     }
@@ -133,41 +138,36 @@ public class King : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, agent.angularSpeed * Time.deltaTime);
     }
 
-    private void Attack(float animationLength, string name, float start, float stop)
+    private void Attack(float animationLength)
     {
-        isAttacking = true;
-        
         //wait for animation
         if (animationTimer < animationLength && isAttacking)
         {
+            //Debug.Log(animationTimer);
             animationTimer += Time.deltaTime;
             agent.isStopped = true;
-
-            if(animationTimer > start && animationTimer < animationLength - stop)
-            {
-                isInflictingDamage = true;
-            }
-            else
-            {
-                isInflictingDamage = false;
-            }
 
         }
         else
         {
             animationTimer = 0.0f;
+            goToNextAttack = true;
+        }
+
+        if(animationTimer > 0.5f && goToNextAttack)
+        {
             currentAttack++;
-            if(currentAttack == numOfAttacks)
+
+            if (currentAttack == numOfAttacks)
             {
                 currentAttack = 0;
             }
-            
+            goToNextAttack = false;
         }
     }
 
     public void InflictDamage()
     {
-
         player.TakeDamage(0.1f);
     }
 
@@ -203,10 +203,8 @@ public class King : MonoBehaviour
     {
         distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
         animator.SetFloat("RunVelocity", agent.velocity.magnitude);
-        animator.SetBool("isAttacking", isAttacking);
         animator.SetBool("isDamaged", isDamaged);
         animator.SetBool("isDead", isDead);
-        animator.SetInteger("AttackNumber", currentAttack);
 
 
         if (distanceFromPlayer < 20.0f)
