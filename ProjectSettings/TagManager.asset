@@ -15,6 +15,7 @@ TagManager:
   - Poison
   - PlayerWeapon
   - Wall
+  - ShadowFist
   layers:
   - Default
   - TransparentFX

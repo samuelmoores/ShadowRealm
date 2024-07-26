@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class King : MonoBehaviour
 {
+    public Slider healthBar; 
     NavMeshAgent agent;
     PlayerController player;
     Animator animator;
@@ -14,20 +17,24 @@ public class King : MonoBehaviour
     bool isStanding;
     bool playerFound;
 
-
     //-----animations----
     float animationTimer;
     float standUp;
 
     //------defending----
-    float backupTimer;
 
     //------attacking-----
     int currentAttack;
     int numOfAttacks;
     bool isAttacking;
     bool canAttack;
-    float jumpAttack;
+    bool isInflictingDamage;
+
+    //----Damage-----
+    float damageTimer;
+    float health;
+    bool isDead;
+    bool isDamaged;
 
     // Start is called before the first frame update
     void Start()
@@ -37,16 +44,24 @@ public class King : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
-        currentAttack = 0;
+
+        //-----attacking----
+        isInflictingDamage = false;
         numOfAttacks = 3;
+        currentAttack = -1;
+
+
+        //----takingDamage----
+        health = 1.0f;
+        isDamaged = false;
+        damageTimer = 0.0f;
+        isDead = false;
 
         //----animations
         standUp = 4.833f;
-        jumpAttack = 3.8f;
 
         //---timers---
         animationTimer = 0.0f;
-        backupTimer = 0.0f;
 
         //---triggers---
         canAttack = false;
@@ -61,30 +76,50 @@ public class King : MonoBehaviour
         Init();
 
         //chase player
-        if (playerFound && isStanding)
+        if (playerFound && isStanding && !isDead)
         {
             agent.destination = player.transform.position;
             RotateTowardsPlayer();
+            
+            healthBar.value = health;
 
-            if (distanceFromPlayer <= agent.stoppingDistance)
+            if (!player.IsAlive())
             {
-                canAttack = true;
+                isAttacking = false;
             }
 
-            if(canAttack)
+            if (distanceFromPlayer <= agent.stoppingDistance && !canAttack)
+            {
+                canAttack = true;
+                currentAttack = 0;
+            }
+            else if(!canAttack)
+            {
+                currentAttack = -1;
+                isAttacking = false;
+                canAttack = false;
+                agent.isStopped = false;
+            }
+
+            if(canAttack && player.IsAlive())
             {
                 switch(currentAttack)
                 {
                     case 0:
-                        Attack(2.733f, "AttackCombo01");
+                        Attack(2.733f, "AttackCombo01", 0.8f, 1.0f);
                         break;
                     case 1:
-                        Attack(3.167f, "Attack360");
+                        Attack(3.167f, "Attack360", 0.7f, 1.0f);
                         break;
                     case 2:
-                        Attack(2.267f, "AttackDownward");
+                        Attack(2.267f, "AttackDownward", 0.2f, 0.3f);
                         break;
                 }
+            }
+
+            if(isDamaged)
+            {
+                RunDamageTimer(0.967f);
             }
         }
     }
@@ -98,26 +133,29 @@ public class King : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, agent.angularSpeed * Time.deltaTime);
     }
 
-    private void Attack(float animationLength, string name)
+    private void Attack(float animationLength, string name, float start, float stop)
     {
-        if (!isAttacking)
-        {
-            animator.SetTrigger(name);
-            isAttacking = true;
-        }
-
+        isAttacking = true;
+        
         //wait for animation
         if (animationTimer < animationLength && isAttacking)
         {
             animationTimer += Time.deltaTime;
             agent.isStopped = true;
+
+            if(animationTimer > start && animationTimer < animationLength - stop)
+            {
+                isInflictingDamage = true;
+            }
+            else
+            {
+                isInflictingDamage = false;
+            }
+
         }
         else
         {
             animationTimer = 0.0f;
-            isAttacking = false;
-            canAttack = false;
-            agent.isStopped = false;
             currentAttack++;
             if(currentAttack == numOfAttacks)
             {
@@ -127,10 +165,49 @@ public class King : MonoBehaviour
         }
     }
 
+    public void InflictDamage()
+    {
+
+        player.TakeDamage(0.1f);
+    }
+
+    public void TakeDamage(float damageAmount)
+    {
+        health -= damageAmount;
+
+        if(health <= 0.0f)
+        {
+            isDead = true;
+        }
+        else
+        {
+            isDamaged = true;
+        }
+    }
+
+    void RunDamageTimer(float animationLength)
+    {
+        if(damageTimer < animationLength)
+        {
+            damageTimer += Time.deltaTime;
+        }
+        else
+        {
+            damageTimer = 0.0f;
+            isDamaged = false;
+
+        }
+    }
+
     private void Init()
     {
         distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
         animator.SetFloat("RunVelocity", agent.velocity.magnitude);
+        animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("isDamaged", isDamaged);
+        animator.SetBool("isDead", isDead);
+        animator.SetInteger("AttackNumber", currentAttack);
+
 
         if (distanceFromPlayer < 20.0f)
         {
@@ -157,12 +234,16 @@ public class King : MonoBehaviour
         }
     }
 
-
-    private void OnCollisionEnter(Collision collision)
+    public bool GetIsInflictingDamage()
     {
-        if(collision.gameObject.CompareTag("Wall"))
+        return isInflictingDamage;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("PlayerWeapon") && player.InflictDamage() && !isDamaged &&!isAttacking)
         {
-            Debug.Log("hit wall");
+            TakeDamage(0.3f);
         }
     }
 

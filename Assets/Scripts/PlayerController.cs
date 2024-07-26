@@ -17,16 +17,16 @@ public class PlayerController : MonoBehaviour
     AttackState attackState;
 
     /*******************Movement******************/
-    public float speed_run;
+    public float default_speed_run;
     public float speed_jump;
-    public float speed_rotation;
+    public float default_speed_rotation;
 
     CharacterController characterController;
     Transform cameraTransform;
     CinemachineFreeLook cam;
     Animator animator;
-    float speed_current_run;
-    float speed_current_rotation;
+    float speed_run;
+    float speed_rotation;
     float speed_y;
     float speed_camera_x;
     float speed_camera_y;
@@ -36,11 +36,15 @@ public class PlayerController : MonoBehaviour
 
     /*******************Attacking******************/
     public GameObject ShadowFist;
+    bool isAttacking;
     bool canAttack;
+    int attackNumber;
+    int numOfAttacks;
     bool inflictDamage;
     bool hasPoison;
     bool shadowRealmActivated;
     float attackTimer;
+    float currentAttackAnimationLength;
     float animationLength_Attack_01;
     float animationLength_Attack_02;
     float animationLength_DumpPoison;
@@ -49,6 +53,7 @@ public class PlayerController : MonoBehaviour
 
     /*******************Damaging******************/
     float health;
+    bool isDamaged;
     int damageCount = 0;
     int damageAnimation;
     bool isDead;
@@ -70,16 +75,61 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Init();
+        //Player State
+        state = State.Idle;
+
+        //----------Components-------
+        characterController = GetComponent<CharacterController>();
+        cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
+        animator = GetComponent<Animator>();
+        hud = GameObject.Find("Canvas").GetComponent<HUD>();
+        cam = GameObject.Find("ThirdPersonCamera").GetComponent<CinemachineFreeLook>();
+
+        //-------Movement-----------
+        speed_run = default_speed_run;
+        speed_rotation = default_speed_rotation;
+        speed_y = 0.0f;
+        inAir = false;
+        inAirTimer = 0.0f;
+        jumpTimer = 0.5f;
+        speed_camera_x = cam.m_XAxis.m_MaxSpeed;
+        speed_camera_y = cam.m_YAxis.m_MaxSpeed;
+
+        //-------Attacking-----------
+        isAttacking = false;
+        canAttack = true;
+        attackNumber = 0;
+        numOfAttacks = 2;
+        hasPoison = false;
+        shadowRealmActivated = false;
+        attackTimer = 0.0f;
+        animationLength_Attack_01 = 1.267f;
+        animationLength_Attack_02 = 1.833f;
+        animationLength_DumpPoison = 4.0f;
+        animationLength_ShadowFist = 1.1f;
+
+        //---------Damage----------
+        health = 1.0f;
+        isDead = false;
+
+        //-------UI-----------
+        gameIsPaused = false;
+        unPauseTimer = 0.2f;
+        unPauseTimer_current = 0.0f;
+
+        //-------Crafting-----------
+        ingredients = new GameObject[9];
+        numOfIngredients = 0;
+        ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!gameIsPaused && !isDead)
+        if (!gameIsPaused && !isDead)
         {
             //when exiting crafting guard against jumping 
-            if(unPauseTimer_current > 0.0f && !isCrafting)
+            if (unPauseTimer_current > 0.0f && !isCrafting)
             {
                 unPauseTimer_current -= Time.deltaTime;
             }
@@ -103,63 +153,22 @@ public class PlayerController : MonoBehaviour
                 cam.m_YAxis.m_MaxSpeed = speed_camera_y;
                 Run(moveDirection);
                 JumpOrFall();
-                Attack();
+                if(isAttacking)
+                {
+                    Attack();
+
+                }
+
                 Move(velocity);
             }
             SetState(velocity_run);
         }
-        
+
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //----------------------------------------------------Functions-----------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    private void Init()
-    {
-        //Player State
-        state = State.Idle;
-
-        //----------Components-------
-        characterController = GetComponent<CharacterController>();
-        cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
-        animator = GetComponent<Animator>();
-        hud = GameObject.Find("Canvas").GetComponent<HUD>();
-        cam = GameObject.Find("ThirdPersonCamera").GetComponent<CinemachineFreeLook>();
-
-        //-------Movement-----------
-        speed_current_run = speed_run;
-        speed_y = 0.0f;
-        inAir = false;
-        inAirTimer = 0.0f;
-        jumpTimer = 0.5f;
-        speed_camera_x = cam.m_XAxis.m_MaxSpeed;
-        speed_camera_y = cam.m_YAxis.m_MaxSpeed;
-
-        //-------Attacking-----------
-        canAttack = true;
-        hasPoison = false;
-        shadowRealmActivated = false;
-        attackTimer = 0.0f;
-        animationLength_Attack_01 = 1.267f;
-        animationLength_Attack_02 = 1.833f;
-        animationLength_DumpPoison = 4.0f;
-        animationLength_ShadowFist = 1.1f;
-
-        //---------Damage----------
-        health = 1.0f;
-        isDead = false;
-
-        //-------UI-----------
-        gameIsPaused = false;
-        unPauseTimer = 0.2f;
-        unPauseTimer_current = 0.0f;
-
-        //-------Crafting-----------
-        ingredients = new GameObject[9];
-        numOfIngredients = 0;
-        ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
-
-    }
     //**********Movement*********
     private void GetInput(out float horizontal, out float vertical)
     {
@@ -179,7 +188,7 @@ public class PlayerController : MonoBehaviour
     private void SetDirection(float horizontal, float vertical, out Vector3 moveDirection, out Vector3 velocity, out Vector2 velocity_run)
     {
         moveDirection = new Vector3(horizontal, 0.0f, vertical);
-        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_current_run;
+        float magnitude = Mathf.Clamp01(moveDirection.magnitude) * speed_run;
         moveDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * moveDirection;
         moveDirection.Normalize();
         velocity = moveDirection * magnitude;
@@ -193,7 +202,7 @@ public class PlayerController : MonoBehaviour
         if (moveDirection != Vector3.zero)
         {
             Quaternion toRotation = Quaternion.LookRotation(moveDirection, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_current_rotation * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, speed_rotation * Time.deltaTime);
             state = State.Run;
         }
     }
@@ -231,19 +240,20 @@ public class PlayerController : MonoBehaviour
     private void SetState(Vector2 velocity_run)
     {
         animator.SetFloat("runVelocity", velocity_run.magnitude);
-        animator.SetBool("inAir", inAir);
+        animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("isDamaged", isDamaged);
 
         //if running on ground
-        if(velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
+        if (velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
         {
             state = State.Run;
         }
-        else if(inAir) //in air
+        else if (inAir) //in air
         {
             state = State.Jump;
 
         }
-        else if(!inAir && attackTimer > 0.0f)
+        else if (!inAir && attackTimer > 0.0f)
         {
             state = State.Attack;
         }
@@ -257,7 +267,7 @@ public class PlayerController : MonoBehaviour
     //**********Input*********
     public void Jump(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && unPauseTimer_current <= 0.0f && !isCrafting)
+        if (context.performed && characterController.isGrounded && unPauseTimer_current <= 0.0f && !isCrafting)
         {
             speed_y = speed_jump;
             inAirTimer = 0.0f;
@@ -266,149 +276,76 @@ public class PlayerController : MonoBehaviour
     }
     public void Attack(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && ! isCrafting)
+        if (context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && !isCrafting)
         {
-            //Stop Charcter
-            speed_current_run = 0.0f;
-            speed_current_rotation = 0.0f;
-
-            //check if player has poison
-            if(hasPoison)
-            { 
-                attackState = AttackState.Poison;
-                attackTimer = animationLength_DumpPoison;
-                animator.SetTrigger("DumpPoison");
-                hasPoison = false;
-            }
-            else if(shadowRealmActivated)
-            {
-                attackState = AttackState.ShadowFist;
-                attackTimer = animationLength_ShadowFist;
-                animator.SetTrigger("ShadowFist");
-            }
-            else
-            {
-                //check if attack cooldown has ended
-                if (attackTimer <= 0.0f)
-                {
-                    Debug.Log("Attack_01");
-
-                    attackState = AttackState.Attack_01;
-                    attackTimer = animationLength_Attack_01;
-                    animator.SetTrigger("Attack_01");
-                }
-                else if (attackState.Equals(AttackState.Attack_01))
-                {
-                    attackState = AttackState.Attack_02;
-                    attackTimer = animationLength_Attack_02;
-                    animator.SetTrigger("Attack_02");
-                }
-            }
-
+            attackTimer = 0.0f;
             canAttack = false;
+            isAttacking = true;
+
+            attackNumber++;
+            if(attackNumber > numOfAttacks)
+            {
+                attackNumber = 1;
+            }
+
+            switch (attackNumber)
+            {
+                case 1:
+                    animator.SetTrigger("Attack_01");
+                    break;
+                case 2:
+                    animator.SetTrigger("Attack_02");
+                    break;
+            }
         }
     }
 
     //**********Attacking/Damaging*********
     private void Attack()
     {
-        if (attackTimer > 0.0f)
+        //setup animation timer
+        switch (attackNumber)
         {
-            attackTimer -= Time.deltaTime;
-
-            switch(attackState)
-            {
-                case AttackState.Attack_01:
-
-                    if((attackTimer < animationLength_Attack_01 - 0.20f) && (attackTimer > animationLength_Attack_01 - 1.00f))
-                    {
-                        inflictDamage = true;
-                    }
-                    else
-                    {
-                        inflictDamage = false;
-                    }
-
-                    if (attackTimer < animationLength_Attack_01 / 3.0f)
-                    {
-                        canAttack = true;
-                    }
-
-                    break;
-
-                case AttackState.Attack_02:
-
-                    if (attackTimer < animationLength_Attack_02 - 0.60f && attackTimer > animationLength_Attack_02 - 1.40f)
-                    {
-                        inflictDamage = true;
-                    }
-                    else
-                    {
-                        inflictDamage = false;
-                    }
-
-                    if (attackTimer < animationLength_Attack_02 / 3.0f)
-                    {
-                        canAttack = true;
-                    }
-
-                    break;
-
-                case AttackState.Poison:
-                    if (attackTimer < animationLength_DumpPoison - 2.50f && attackTimer > animationLength_DumpPoison - 3.75f)
-                    {
-                        inflictDamage = true;
-                    }
-                    else
-                    {
-                        inflictDamage = false;
-                    }
-                    if (attackTimer < animationLength_DumpPoison / 3.0f)
-                    {
-                        canAttack = true;
-                        Destroy(Potion);
-                    }
-                    break;
-
-                case AttackState.ShadowFist:
-                    ShadowFist.SetActive(true);
-                    ShadowFist.transform.localScale += new Vector3(Time.deltaTime * 300.0f, Time.deltaTime * 300.0f, Time.deltaTime * 300.0f);
-                    if (attackTimer < animationLength_ShadowFist - 0.10f && attackTimer > animationLength_ShadowFist - 1.0f)
-                    {
-                        inflictDamage = true;
-                    }
-                    else
-                    {
-                        inflictDamage = false;
-                    }
-
-                    if (attackTimer < animationLength_ShadowFist / 3.0f)
-                    {
-                        canAttack = true;
-                    }
-
-                    if(attackTimer < animationLength_ShadowFist / 4.0f)
-                    {
-                        ShadowFist.SetActive(false);
-
-                        ShadowFist.transform.localScale = new Vector3(2.03f, 2.03f, 2.03f);
-                    }
-                    break;
-
-            }
+            case 1:
+                currentAttackAnimationLength = animationLength_Attack_01;
+                break;
+            case 2:
+                currentAttackAnimationLength = animationLength_Attack_02;
+                break;
         }
-        else
+
+        Debug.Log(attackTimer > currentAttackAnimationLength / 3.0f);
+
+        //run animation timer
+        if (attackTimer < currentAttackAnimationLength)
         {
+            //Stop Charcter
+            speed_run = 0.0f;
+            speed_rotation = 0.0f;
+            isAttacking = true;
+            canAttack = false;
+            attackTimer += Time.deltaTime;
+
+        }
+        
+        if(attackTimer > currentAttackAnimationLength / 2.0f)
+        {
+            canAttack = true;
+        }
+        
+        if(attackTimer >= currentAttackAnimationLength)//end 
+        {
+            isAttacking = false;
+            canAttack = true;
+            attackNumber = 0;
+
             //Attack has ended
             attackTimer = 0.0f;
             attackState = AttackState.NotAttacking;
 
-            //Stop Animations
-            animator.SetBool("StopAttacking", true);
-
             //player can move
-            speed_current_run = speed_run;
-            speed_current_rotation = speed_rotation;
+            speed_run = default_speed_run;
+            speed_rotation = default_speed_rotation;
 
         }
     }
@@ -416,13 +353,17 @@ public class PlayerController : MonoBehaviour
     {
         return inflictDamage;
     }
+    public bool IsAlive()
+    {
+        return !isDead;
+    }
     public void TakeDamage(float damageAmount)
     {
         health -= damageAmount;
         damageCount++;
         damageAnimation = 1;
 
-        if(health <= 0.0f)
+        if (health <= 0.0f)
         {
             isDead = true;
             animator.SetBool("isDead", true);
@@ -442,7 +383,7 @@ public class PlayerController : MonoBehaviour
                     break;
             }
         }
-        
+
     }
 
     //**********Crafting*********
@@ -450,7 +391,7 @@ public class PlayerController : MonoBehaviour
     {
         int index = 0;
 
-        for(int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++)
         {
             if (ingredientIndeces[i] == -1)
             {
@@ -466,7 +407,7 @@ public class PlayerController : MonoBehaviour
     }
     public void UseIngredient(int index)
     {
-        if(numOfIngredients > 0)
+        if (numOfIngredients > 0)
         {
             numOfIngredients--;
             ingredientIndeces[index] = -1;
@@ -477,7 +418,7 @@ public class PlayerController : MonoBehaviour
     public void PrintIngedients()
     {
         Debug.Log("-----------");
-        for(int i = 0; i < numOfIngredients; i++)
+        for (int i = 0; i < numOfIngredients; i++)
         {
             Debug.Log("[" + i + "]" + ingredients[i]);
         }
@@ -547,7 +488,7 @@ public class PlayerController : MonoBehaviour
     }
     public void SetPotion(GameObject NewPotion, string potionName)
     {
-        if(potionName == "Poison")
+        if (potionName == "Poison")
         {
             hasPoison = true;
         }
