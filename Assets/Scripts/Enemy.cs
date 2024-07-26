@@ -203,8 +203,9 @@ public class Enemy : MonoBehaviour
             {
                 TakeDamage(0.6f);
             }
-            else
+            else if(!player.HasPoison() && player.InflictDamage())
             {
+                Debug.Log("enemy hit by player sword");
                 TakeDamage(0.3f);
 
             }
@@ -219,10 +220,7 @@ public class Enemy : MonoBehaviour
             TakeDamage(2.0f);
         }
 
-        if(other.CompareTag("Player"))
-        {
-            Debug.Log("HitPlayer");
-        }
+        
 
     }
 

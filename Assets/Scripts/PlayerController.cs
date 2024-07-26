@@ -150,6 +150,7 @@ public class PlayerController : MonoBehaviour
                 moveDirection = Vector3.zero;
                 velocity = Vector3.zero;
                 unPauseTimer_current = unPauseTimer;
+
             }
             else
             {
@@ -168,8 +169,8 @@ public class PlayerController : MonoBehaviour
                     RunDamageTimer(1.3f);
                 }
 
-                Move(velocity);
             }
+            Move(velocity);
             SetState(velocity_run);
         }
 
@@ -227,7 +228,7 @@ public class PlayerController : MonoBehaviour
                 inAir = false;
             }
         }
-        else
+        else if(!isCrafting)
         {
             speed_y += Physics.gravity.y * Time.deltaTime;
 
@@ -286,11 +287,21 @@ public class PlayerController : MonoBehaviour
                 canAttack = false;
                 isAttacking = true;
 
-                attackNumber++;
-                if (attackNumber > numOfAttacks)
+                if(hasPoison)
                 {
-                    attackNumber = 1;
+                    attackNumber = 3;
+                    inflictDamage = true;
                 }
+                else
+                {
+                    attackNumber++;
+                    if (attackNumber > numOfAttacks)
+                    {
+                        attackNumber = 1;
+                    }
+
+                }
+
 
                 switch (attackNumber)
                 {
@@ -299,6 +310,9 @@ public class PlayerController : MonoBehaviour
                         break;
                     case 2:
                         animator.SetTrigger("Attack_02");
+                        break;
+                    case 3:
+                        animator.SetTrigger("DumpPoison");
                         break;
                 }
             }
@@ -318,9 +332,11 @@ public class PlayerController : MonoBehaviour
             case 2:
                 currentAttackAnimationLength = animationLength_Attack_02;
                 break;
+            case 3:
+                currentAttackAnimationLength = animationLength_DumpPoison;
+                break;
         }
 
-        Debug.Log(attackTimer > currentAttackAnimationLength / 3.0f);
 
         //run animation timer until the length of the animation
         //make sure the character can't move, they are attacking
@@ -344,7 +360,13 @@ public class PlayerController : MonoBehaviour
         //end the animation
         if(attackTimer >= currentAttackAnimationLength)
         {
+            if(hasPoison)
+            {
+                Potion.SetActive(false);
+                hasPoison = false;
+            }
             isAttacking = false;
+            inflictDamage = false;
             canAttack = true;
             attackNumber = 0;
 
@@ -534,6 +556,10 @@ public class PlayerController : MonoBehaviour
     public GameObject[] GetIngrediants()
     {
         return ingredients;
+    }
+    public bool HasPoison()
+    {
+        return hasPoison;
     }
     public int GetIngredientCount()
     {
