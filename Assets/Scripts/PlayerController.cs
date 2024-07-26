@@ -220,22 +220,25 @@ public class PlayerController : MonoBehaviour
         if (characterController.isGrounded)
         {
             inAirTimer = 0.0f;
+            speed_y = -9.8f;
 
-            if (inAir && jumpTimer < 0.0f)
+            if (inAir)
             {
-                jumpTimer = 0.5f;
                 inAir = false;
             }
         }
         else
         {
             speed_y += Physics.gravity.y * Time.deltaTime;
+            Debug.Log(inAirTimer);
 
             inAirTimer -= Time.deltaTime;
-            jumpTimer -= Time.deltaTime;
-
-            //player is falling
-            if (inAirTimer < -0.4f)
+            
+            //guard against subtle times the player is not grounded
+            //the fall animation should not play if the play is in air
+            //for only a few frames so check to make sure the inAir time 
+            //has been running for more than a few milliseconds
+            if (inAirTimer < -0.1f)
             {
                 inAir = true;
 
@@ -250,6 +253,7 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetFloat("runVelocity", velocity_run.magnitude);
         animator.SetBool("isAttacking", isAttacking);
+        animator.SetBool("inAir", inAir);
 
         //if running on ground
         if (velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
@@ -273,15 +277,6 @@ public class PlayerController : MonoBehaviour
     }
 
     //**********Input*********
-    public void Jump(InputAction.CallbackContext context)
-    {
-        if (context.performed && characterController.isGrounded && unPauseTimer_current <= 0.0f && !isCrafting)
-        {
-            speed_y = speed_jump;
-            inAirTimer = 0.0f;
-            inAir = true;
-        }
-    }
     public void Attack(InputAction.CallbackContext context)
     {
         if (context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && !isCrafting)
