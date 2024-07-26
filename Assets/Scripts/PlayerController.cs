@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!gameIsPaused && !isDead)
+        if (!gameIsPaused)
         {
             //when exiting crafting guard against jumping 
             if (unPauseTimer_current > 0.0f && !isCrafting)
@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviour
             SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
 
             //let the game run while player is crafting but inhibit movement
-            if (isCrafting)
+            if (isCrafting || isDead)
             {
                 moveDirection = Vector3.zero;
                 velocity = Vector3.zero;
@@ -292,6 +292,10 @@ public class PlayerController : MonoBehaviour
                     attackNumber = 3;
                     inflictDamage = true;
                 }
+                else if(shadowRealmActivated)
+                {
+                    attackNumber = 4;
+                }
                 else
                 {
                     attackNumber++;
@@ -314,6 +318,9 @@ public class PlayerController : MonoBehaviour
                     case 3:
                         animator.SetTrigger("DumpPoison");
                         break;
+                    case 4:
+                        animator.SetTrigger("ShadowFistPunch");
+                        break;
                 }
             }
             
@@ -335,6 +342,9 @@ public class PlayerController : MonoBehaviour
             case 3:
                 currentAttackAnimationLength = animationLength_DumpPoison;
                 break;
+            case 4:
+                currentAttackAnimationLength = animationLength_ShadowFist;
+                break;
         }
 
 
@@ -349,7 +359,21 @@ public class PlayerController : MonoBehaviour
             isAttacking = true;
             canAttack = false;
             attackTimer += Time.deltaTime;
-        }
+
+            if(shadowRealmActivated)
+            {
+                ShadowFist.SetActive(true);
+                
+                ShadowFist.transform.localScale += new Vector3(Time.deltaTime * 200.0f, Time.deltaTime * 200.0f, Time.deltaTime * 200.0f);
+                inflictDamage = true;
+
+                if (attackTimer < animationLength_ShadowFist - 0.10f && attackTimer > animationLength_ShadowFist - 1.0f)
+                {
+                }
+                
+            }
+
+    }
         
         //buffer time to start a combo
         if(attackTimer > currentAttackAnimationLength / 2.0f)
@@ -364,6 +388,11 @@ public class PlayerController : MonoBehaviour
             {
                 Potion.SetActive(false);
                 hasPoison = false;
+            }
+            else if(shadowRealmActivated)
+            {
+                ShadowFist.SetActive(false);
+                ShadowFist.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             }
             isAttacking = false;
             inflictDamage = false;

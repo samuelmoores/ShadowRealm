@@ -201,7 +201,7 @@ public class Enemy : MonoBehaviour
         {
             if(player.HasActivatedShadowRealm())
             {
-                TakeDamage(0.6f);
+                TakeDamage(2.0f);
             }
             else if(!player.HasPoison() && player.InflictDamage())
             {
@@ -277,7 +277,7 @@ public class Enemy : MonoBehaviour
         shadowForce.Normalize();
         shadowForce.y = 0.0f;
 
-        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 30000f);
+        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 100000f);
         Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 30000f);
     }
 }
