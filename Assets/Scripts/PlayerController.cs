@@ -230,7 +230,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             speed_y += Physics.gravity.y * Time.deltaTime;
-            Debug.Log(inAirTimer);
 
             inAirTimer -= Time.deltaTime;
             
@@ -323,7 +322,9 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log(attackTimer > currentAttackAnimationLength / 3.0f);
 
-        //run animation timer
+        //run animation timer until the length of the animation
+        //make sure the character can't move, they are attacking
+        //and are not able to attack again until a certain time
         if (attackTimer < currentAttackAnimationLength)
         {
             //Stop Charcter
@@ -332,15 +333,16 @@ public class PlayerController : MonoBehaviour
             isAttacking = true;
             canAttack = false;
             attackTimer += Time.deltaTime;
-
         }
         
+        //buffer time to start a combo
         if(attackTimer > currentAttackAnimationLength / 2.0f)
         {
             canAttack = true;
         }
         
-        if(attackTimer >= currentAttackAnimationLength)//end 
+        //end the animation
+        if(attackTimer >= currentAttackAnimationLength)
         {
             isAttacking = false;
             canAttack = true;
@@ -360,6 +362,19 @@ public class PlayerController : MonoBehaviour
     {
         return inflictDamage;
     }
+
+    public void SetInflictDamage(int value)
+    {
+        if(value == 0)
+        {
+            inflictDamage = false;
+        }
+        else if(value == 1)
+        {
+            inflictDamage = true;
+
+        }
+    }
     public bool IsAlive()
     {
         return !isDead;
@@ -370,8 +385,9 @@ public class PlayerController : MonoBehaviour
         if(other.CompareTag("ShadowFist"))
         {
             hit = true;
-            Debug.Log("hit");
         }
+
+
     }
 
     private void OnTriggerExit(Collider other)
@@ -380,6 +396,18 @@ public class PlayerController : MonoBehaviour
         {
             hit = false;
         }
+
+
+    }
+
+    public void SetHit(bool value)
+    {
+        hit = value;
+    }
+
+    public bool IsHit()
+    {
+        return hit;
     }
     public void TakeDamage(float damageAmount)
     {
@@ -390,7 +418,6 @@ public class PlayerController : MonoBehaviour
             damageAnimation = 1;
             isDamaged = true;
             damageTimer = 0.0f;
-
 
             if (health <= 0.0f)
             {
@@ -408,7 +435,6 @@ public class PlayerController : MonoBehaviour
             }
         }
         
-
     }
 
     void RunDamageTimer(float animationLength)

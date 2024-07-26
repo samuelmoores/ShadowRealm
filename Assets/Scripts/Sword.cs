@@ -11,6 +11,7 @@ public class Sword : MonoBehaviour
     int attackCount;
     bool inflictDamage;
     bool canInflictDamage;
+    bool damagedPlayer;
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +20,7 @@ public class Sword : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         attackCount = 0;
         canInflictDamage = true;
+        damagedPlayer = false;
     }
 
     // Update is called once per frame
@@ -26,7 +28,7 @@ public class Sword : MonoBehaviour
     {
         attackTime = enemy.GetAttackCooldown();
 
-        if (attackTime < 1.9f && attackTime > 1.7f && canInflictDamage)
+        if (attackTime < 1.9f && attackTime > 0.2f && canInflictDamage && !damagedPlayer)
         {
             inflictDamage = true;
         }
@@ -38,18 +40,24 @@ public class Sword : MonoBehaviour
         if(attackTime <= 0.0f)
         {
             canInflictDamage = true;
+            damagedPlayer = false;
+            player.SetHit(false);
+
         }
 
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player") && canInflictDamage && inflictDamage)
+        if(other.CompareTag("Player") && !damagedPlayer && inflictDamage)
         {
-            player.TakeDamage(0.4f);
-            canInflictDamage = false;
-            attackCount++;
+            Debug.Log("sword hit player");
+            damagedPlayer = true;
+            player.SetHit(true);
+
+            player.TakeDamage(0.1f);
         }
     }
+
 
 }

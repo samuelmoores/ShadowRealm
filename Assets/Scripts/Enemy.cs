@@ -32,6 +32,7 @@ public class Enemy : MonoBehaviour
     //---------Attacking--------
     bool isAttacking;
     float attackTimer;
+    bool inflictDamage;
 
     // Start is called before the first frame update
     void Start()
@@ -61,6 +62,7 @@ public class Enemy : MonoBehaviour
         //Attacking
         isAttacking = false;
         attackTimer = attackCoolDown;
+        inflictDamage = false;
 
     }
 
@@ -176,6 +178,23 @@ public class Enemy : MonoBehaviour
         return attackTimer;
     }
 
+    public void SetInflictDamage(int value)
+    {
+        if(value == 0)
+        {
+            inflictDamage = false;
+        }
+        else
+        {
+            inflictDamage = true;
+        }
+    }
+
+    public bool GetInflictDamage()
+    {
+        return inflictDamage;
+    }
+
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("PlayerWeapon"))
@@ -190,6 +209,7 @@ public class Enemy : MonoBehaviour
 
             }
         }
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -198,6 +218,12 @@ public class Enemy : MonoBehaviour
         {
             TakeDamage(2.0f);
         }
+
+        if(other.CompareTag("Player"))
+        {
+            Debug.Log("HitPlayer");
+        }
+
     }
 
     private void TakeDamage(float damageAmount)
@@ -209,6 +235,7 @@ public class Enemy : MonoBehaviour
                 damaged = true;
                 animator.SetTrigger("Damage");
                 health -= damageAmount;
+                player.SetInflictDamage(0);
 
                 if(health <= 0.0f)
                 {
@@ -216,29 +243,7 @@ public class Enemy : MonoBehaviour
 
                     if(player.HasActivatedShadowRealm())
                     {
-                        animator.enabled = false;
-                        GetComponent<CharacterController>().enabled = false;
-                        CapsuleCollider[] cols = GetComponents<CapsuleCollider>();
-
-                        for(int i = 0; i < 2; i++)
-                        {
-                            cols[i].enabled = false;
-                        }
-
-                        agent.enabled = false;
-
-                        foreach (var rb in ragdollColliders)
-                        {
-                            rb.isKinematic = false;
-                        }
-
-                        Vector3 shadowForce = transform.position - player.transform.position;
-                        shadowForce.Normalize();
-                        shadowForce.y = 0.0f;
-
-                        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 30000f);
-                        Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 30000f);
-
+                        EnableRagdoll();
 
                     }
                     else
@@ -252,5 +257,29 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    private void EnableRagdoll()
+    {
+        animator.enabled = false;
+        GetComponent<CharacterController>().enabled = false;
+        CapsuleCollider[] cols = GetComponents<CapsuleCollider>();
 
+        for (int i = 0; i < 2; i++)
+        {
+            cols[i].enabled = false;
+        }
+
+        agent.enabled = false;
+
+        foreach (var rb in ragdollColliders)
+        {
+            rb.isKinematic = false;
+        }
+
+        Vector3 shadowForce = transform.position - player.transform.position;
+        shadowForce.Normalize();
+        shadowForce.y = 0.0f;
+
+        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 30000f);
+        Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 30000f);
+    }
 }
