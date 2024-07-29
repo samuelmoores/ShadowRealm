@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class King : MonoBehaviour
 {
+    public GameObject healthBarObject;
     public Slider healthBar; 
     NavMeshAgent agent;
     PlayerController player;
@@ -45,6 +46,7 @@ public class King : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+
 
         //-----attacking----
         isInflictingDamage = false;
@@ -211,9 +213,17 @@ public class King : MonoBehaviour
         {
             playerFound = true;
         }
-
-        if (!isStanding)
+        else
         {
+            healthBarObject.SetActive(false);
+
+        }
+
+        if (!isStanding && playerFound) //&& player.HasActivatedShadowRealm())
+        {
+            //show health bar
+            healthBarObject.SetActive(true);
+
             //start animation
             animator.SetBool("StandUp", true);
 
@@ -243,6 +253,14 @@ public class King : MonoBehaviour
         {
             TakeDamage(0.3f);
         }
+
+        if (other.CompareTag("ShadowFist") && player.InflictDamage())
+        {
+            animator.SetTrigger("Hurt");
+            isAttacking = false;
+            TakeDamage(0.3f);
+        }
+
     }
 
 }

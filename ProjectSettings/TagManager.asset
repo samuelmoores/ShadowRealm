@@ -9,13 +9,15 @@ TagManager:
   - PlayerSword
   - Sword
   - PotionLedger
-  - Ingrediant
   - Ingredient
   - Herb
   - Poison
   - PlayerWeapon
   - Wall
   - ShadowFist
+  - Ingrediant
+  - DungeonGuard
+  - CastleGuard
   layers:
   - Default
   - TransparentFX

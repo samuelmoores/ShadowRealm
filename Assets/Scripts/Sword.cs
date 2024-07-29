@@ -7,6 +7,7 @@ public class Sword : MonoBehaviour
 {
     Enemy enemy;
     PlayerController player;
+    public float damageAmount;
     float attackTime;
     int attackCount;
     bool inflictDamage;
@@ -26,24 +27,28 @@ public class Sword : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        attackTime = enemy.GetAttackCooldown();
-
-        if (attackTime < 1.9f && attackTime > 0.2f && canInflictDamage && !damagedPlayer)
+        if(enemy)
         {
-            inflictDamage = true;
-        }
-        else
-        {
-            inflictDamage = false;
+            attackTime = enemy.GetAttackCooldown();
+
+            if (attackTime < 1.9f && attackTime > 0.2f && canInflictDamage && !damagedPlayer)
+            {
+                inflictDamage = true;
+            }
+            else
+            {
+                inflictDamage = false;
+            }
+
+            if (attackTime <= 0.0f)
+            {
+                canInflictDamage = true;
+                damagedPlayer = false;
+                player.SetHit(false);
+
+            }
         }
 
-        if(attackTime <= 0.0f)
-        {
-            canInflictDamage = true;
-            damagedPlayer = false;
-            player.SetHit(false);
-
-        }
 
     }
 
@@ -55,7 +60,7 @@ public class Sword : MonoBehaviour
             damagedPlayer = true;
             player.SetHit(true);
 
-            player.TakeDamage(0.1f);
+            player.TakeDamage(damageAmount);
         }
     }
 

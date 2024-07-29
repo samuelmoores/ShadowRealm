@@ -21,10 +21,22 @@ public class PlayerController : MonoBehaviour
     public float speed_jump;
     public float default_speed_rotation;
 
+    public GameObject skeleton;
+    public GameObject paladin;
+    public Transform SwordBackSocket;
+
+
     CharacterController characterController;
     Transform cameraTransform;
     CinemachineFreeLook cam;
     Animator animator;
+
+    public RuntimeAnimatorController skeletonAnimController;
+    public RuntimeAnimatorController paladinAnimController;
+
+    public Avatar skeletonAvatar;
+    public Avatar paladinAvatar;
+
     float speed_run;
     float speed_rotation;
     float speed_y;
@@ -38,12 +50,15 @@ public class PlayerController : MonoBehaviour
     public GameObject ShadowFist;
     bool isAttacking;
     bool canAttack;
+    bool identityShadowed;
     int attackNumber;
     int numOfAttacks;
     bool inflictDamage;
+    bool dodgeRolling;
     bool hasPoison;
     bool shadowRealmActivated;
     float attackTimer;
+    float shadowFistScalar;
     float currentAttackAnimationLength;
     float animationLength_Attack_01;
     float animationLength_Attack_02;
@@ -59,6 +74,9 @@ public class PlayerController : MonoBehaviour
     bool isDead;
     float damageTimer;
     bool hit;
+    bool startRespawnTimer;
+    float respawnTimer;
+    float respawnTimerDefault;
 
     /*******************Crafting******************/
     GameObject Potion;
@@ -84,6 +102,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
         animator = GetComponent<Animator>();
+
         hud = GameObject.Find("Canvas").GetComponent<HUD>();
         cam = GameObject.Find("ThirdPersonCamera").GetComponent<CinemachineFreeLook>();
 
@@ -99,22 +118,28 @@ public class PlayerController : MonoBehaviour
 
         //-------Attacking-----------
         isAttacking = false;
+        identityShadowed = false;
         canAttack = true;
         attackNumber = 0;
         numOfAttacks = 2;
         hasPoison = false;
         shadowRealmActivated = false;
+        dodgeRolling = false;
         attackTimer = 0.0f;
+        shadowFistScalar = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
         animationLength_DumpPoison = 4.0f;
-        animationLength_ShadowFist = 1.1f;
+        animationLength_ShadowFist = 2.4f;
 
         //---------Damage----------
         health = 1.0f;
         isDead = false;
         damageTimer = 0.0f;
         hit = false;
+        startRespawnTimer = false;
+        respawnTimerDefault = 1.5f;
+        respawnTimer = 0.0f;
 
         //-------UI-----------
         gameIsPaused = false;
@@ -125,13 +150,35 @@ public class PlayerController : MonoBehaviour
         ingredients = new GameObject[9];
         numOfIngredients = 0;
         ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+        //****************DEBUG**********************
+        //ShadowIdentity();
+        //*****************DEBUG*********************
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (isDead)
+        {
+            respawnTimerDefault = 4.0f;
+            startRespawnTimer = true;
+        }
+
         if (!gameIsPaused)
         {
+            if (startRespawnTimer)
+            {
+                cam.enabled = false;
+                respawnTimer += Time.deltaTime;
+
+                if (respawnTimer > respawnTimerDefault)
+                {
+                    SceneManager.LoadScene("Level");
+
+                }
+            }
+
             //when exiting crafting guard against jumping 
             if (unPauseTimer_current > 0.0f && !isCrafting)
             {
@@ -158,13 +205,13 @@ public class PlayerController : MonoBehaviour
                 cam.m_YAxis.m_MaxSpeed = speed_camera_y;
                 Run(moveDirection);
                 JumpOrFall();
-                if(isAttacking)
+                if (isAttacking)
                 {
                     Attack();
 
                 }
 
-                if(isDamaged)
+                if (isDamaged)
                 {
                     RunDamageTimer(1.3f);
                 }
@@ -228,12 +275,12 @@ public class PlayerController : MonoBehaviour
                 inAir = false;
             }
         }
-        else if(!isCrafting)
+        else if (!isCrafting)
         {
             speed_y += Physics.gravity.y * Time.deltaTime;
 
             inAirTimer -= Time.deltaTime;
-            
+
             //guard against subtle times the player is not grounded
             //the fall animation should not play if the play is in air
             //for only a few frames so check to make sure the inAir time 
@@ -254,6 +301,12 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("runVelocity", velocity_run.magnitude);
         animator.SetBool("isAttacking", isAttacking);
         animator.SetBool("inAir", inAir);
+
+        if(!identityShadowed)
+        {
+            animator.SetBool("ShadowSprint", true);
+
+        }
 
         //if running on ground
         if (velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
@@ -281,18 +334,18 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed && characterController.isGrounded && canAttack && unPauseTimer_current <= 0.0f && !isCrafting)
         {
-            if(!isDamaged)
+            if (!isDamaged)
             {
                 attackTimer = 0.0f;
                 canAttack = false;
                 isAttacking = true;
 
-                if(hasPoison)
+                if (hasPoison)
                 {
                     attackNumber = 3;
                     inflictDamage = true;
                 }
-                else if(shadowRealmActivated)
+                else if (shadowRealmActivated)
                 {
                     attackNumber = 4;
                 }
@@ -322,8 +375,18 @@ public class PlayerController : MonoBehaviour
                         animator.SetTrigger("ShadowFistPunch");
                         break;
                 }
+
+
             }
-            
+
+        }
+    }
+    public void DodgeBlock(InputAction.CallbackContext context)
+    {
+        if(context.performed && characterController.isGrounded && !isDamaged && !isAttacking && !isCrafting && !dodgeRolling)
+        {
+            dodgeRolling = true;
+            animator.SetTrigger("DodgeRoll");
         }
     }
 
@@ -360,39 +423,55 @@ public class PlayerController : MonoBehaviour
             canAttack = false;
             attackTimer += Time.deltaTime;
 
-            if(shadowRealmActivated)
+            if (shadowRealmActivated)
             {
                 ShadowFist.SetActive(true);
-                
-                ShadowFist.transform.localScale += new Vector3(Time.deltaTime * 200.0f, Time.deltaTime * 200.0f, Time.deltaTime * 200.0f);
                 inflictDamage = true;
 
-                if (attackTimer < animationLength_ShadowFist - 0.10f && attackTimer > animationLength_ShadowFist - 1.0f)
+                if (attackTimer < 1.0f)
                 {
+                    if(ShadowFist.transform.localScale.x > 0.0f)
+                    {
+                        shadowFistScalar += Time.deltaTime * 200.0f;
+                        //Debug.Log(shadowFistScalar);
+                        ShadowFist.transform.localScale += new Vector3(Time.deltaTime * shadowFistScalar, Time.deltaTime * shadowFistScalar, Time.deltaTime * shadowFistScalar);
+                    }
+                    
                 }
-                
+                else
+                {
+                    if(ShadowFist.transform.localScale.x > 0.0f)
+                    {
+                        shadowFistScalar += Time.deltaTime * 600.0f;
+                        ShadowFist.transform.localScale -= new Vector3(Time.deltaTime * shadowFistScalar, Time.deltaTime * shadowFistScalar, Time.deltaTime * shadowFistScalar);
+                        //Debug.Log(shadowFistScalar); 
+                    }
+
+                }
+
             }
 
-    }
-        
+        }
+
         //buffer time to start a combo
-        if(attackTimer > currentAttackAnimationLength / 2.0f)
+        if (attackTimer > currentAttackAnimationLength / 2.0f)
         {
             canAttack = true;
         }
-        
+
         //end the animation
-        if(attackTimer >= currentAttackAnimationLength)
+        if (attackTimer >= currentAttackAnimationLength)
         {
-            if(hasPoison)
+            if (hasPoison)
             {
                 Potion.SetActive(false);
                 hasPoison = false;
             }
-            else if(shadowRealmActivated)
+            else if (shadowRealmActivated)
             {
                 ShadowFist.SetActive(false);
                 ShadowFist.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                shadowFistScalar = 0.0f;
             }
             isAttacking = false;
             inflictDamage = false;
@@ -404,7 +483,15 @@ public class PlayerController : MonoBehaviour
             attackState = AttackState.NotAttacking;
 
             //player can move
-            speed_run = default_speed_run;
+            if(shadowRealmActivated)
+            {
+                speed_run = default_speed_run * 2.0f;
+            }
+            else
+            {
+                speed_run = default_speed_run;
+            }
+
             speed_rotation = default_speed_rotation;
 
         }
@@ -416,11 +503,11 @@ public class PlayerController : MonoBehaviour
 
     public void SetInflictDamage(int value)
     {
-        if(value == 0)
+        if (value == 0)
         {
             inflictDamage = false;
         }
-        else if(value == 1)
+        else if (value == 1)
         {
             inflictDamage = true;
 
@@ -433,9 +520,14 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("ShadowFist"))
+        if (other.CompareTag("ShadowFist"))
         {
             hit = true;
+        }
+
+        if (other.CompareTag("Respawn"))
+        {
+            startRespawnTimer = true;
         }
 
 
@@ -462,7 +554,7 @@ public class PlayerController : MonoBehaviour
     }
     public void TakeDamage(float damageAmount)
     {
-        if(hit)
+        if (hit)
         {
             health -= damageAmount;
             damageCount++;
@@ -485,12 +577,12 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        
+
     }
 
     void RunDamageTimer(float animationLength)
     {
-        if(damageTimer < animationLength)
+        if (damageTimer < animationLength)
         {
             damageTimer += Time.deltaTime;
             speed_run = 0.0f;
@@ -504,6 +596,46 @@ public class PlayerController : MonoBehaviour
             speed_rotation = default_speed_rotation;
             damageTimer = 0.0f;
         }
+    }
+
+    public void ShadowIdentity()
+    {
+        animator.runtimeAnimatorController = paladinAnimController;
+        animator.avatar = paladinAvatar;
+
+        skeleton.SetActive(false);
+        paladin.SetActive(true);
+        identityShadowed = true;
+
+    }
+
+    public void UnShadow()
+    {
+        animator.runtimeAnimatorController = skeletonAnimController;
+        animator.avatar = skeletonAvatar;
+
+        skeleton.SetActive(true);
+        paladin.SetActive(false);
+        identityShadowed = false;
+    }
+
+    public bool IsShadowed()
+    {
+        return identityShadowed;
+    }
+    public void ActivateShadowRealm()
+    {
+        if(identityShadowed)
+        {
+            UnShadow();
+        }
+        GameObject.Find("Sword").gameObject.SetActive(false);
+        GameObject.Find("SwordBack").gameObject.GetComponent<MeshRenderer>().enabled = true;
+        animator.SetBool("ShadowSprint", true);
+        speed_run *= 2.0f;
+
+
+        shadowRealmActivated = true;
     }
 
     //**********Crafting*********
@@ -593,10 +725,6 @@ public class PlayerController : MonoBehaviour
     public int GetIngredientCount()
     {
         return numOfIngredients;
-    }
-    public void ActivateShadowRealm()
-    {
-        shadowRealmActivated = true;
     }
     public bool HasActivatedShadowRealm()
     {

@@ -69,7 +69,8 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!isDead)
+
+        if (!isDead && !player.IsShadowed())
         {
             distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
 
@@ -80,9 +81,14 @@ public class Enemy : MonoBehaviour
 
             if (distanceFromPlayer < 10.0f)
             {
+
                 Move();
 
-                Attack();
+                if(player.IsAlive())
+                {
+                    Attack();
+
+                }
 
                 Damage();
 
@@ -230,16 +236,34 @@ public class Enemy : MonoBehaviour
         {
             if (!damaged && player.InflictDamage())
             {
-                damaged = true;
-                animator.SetTrigger("Damage");
-                health -= damageAmount;
-                player.SetInflictDamage(0);
+                //the player cannot damage a castle guard when they are not shadowed and have not activated shadow realm
+                if(gameObject.tag == "CastleGuard" && !player.IsShadowed() && !player.HasActivatedShadowRealm())
+                {
+                    //do nothing
+                }
+                else
+                {
+                    damaged = true;
+                    animator.SetTrigger("Damage");
+                    health -= damageAmount;
+                    player.SetInflictDamage(0);
+                }
 
-                if(health <= 0.0f)
+                
+
+                if (health <= 0.0f)
                 {
                     isDead = true;
 
-                    if(player.HasActivatedShadowRealm())
+                    Debug.Log(gameObject.tag);
+
+                    if(gameObject.tag == "DungeonGuard")
+                    {
+                        GameObject.Find("Cage").GetComponent<Cage>().Open();
+
+                    }
+
+                    if (player.HasActivatedShadowRealm())
                     {
                         EnableRagdoll();
 
@@ -277,7 +301,9 @@ public class Enemy : MonoBehaviour
         shadowForce.Normalize();
         shadowForce.y = 0.0f;
 
-        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 100000f);
-        Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 30000f);
+        Debug.Log(shadowForce * 50000f);
+
+        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 50000f);
+        Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 15000f);
     }
 }

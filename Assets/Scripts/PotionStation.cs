@@ -10,6 +10,11 @@ public class PotionStation : MonoBehaviour
     //---------Potions Spawning-----------------------------
     string[] recipeNames;
     public Transform PotionSpawnTransform;
+    public Transform PotionSpawnTransform_Shadowed;
+
+    public Transform ShadowRealmPotionSpawnTransform;
+
+
     //---------Potions-----------------------------
     public GameObject Poison_Prefab;
     GameObject Spawned_Poison_Prefab;
@@ -48,8 +53,8 @@ public class PotionStation : MonoBehaviour
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         Input_Ingredients = new GameObject[3] { GameObject.CreatePrimitive(PrimitiveType.Cube), GameObject.CreatePrimitive(PrimitiveType.Cube), GameObject.CreatePrimitive(PrimitiveType.Cube) };
-        poisonRecipe = new string[4] { "Water", "Alcohol", "Herb", "Poison" };
-        shadowRealmRecipe = new string[4] { "Taxes", "Pizza", "Egg", "ShadowRealm" };
+        poisonRecipe = new string[4] { "Buffer", "Sulfate", "Mercury", "Poison" };
+        shadowRealmRecipe = new string[4] { "RockCrystal", "SilkWorm", "MullberryLeaf", "ShadowRealm" };
         recipeNames = new string[2] { "None", "None"};
         selectedIngredients = new int[3] { -1, -1, -1 };
         playerIngredients = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
@@ -62,7 +67,7 @@ public class PotionStation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!player.GetIsCrafting())
+        if (!player.GetIsCrafting())
         {
             potionStation_UI.SetActive(false);
         }
@@ -89,6 +94,8 @@ public class PotionStation : MonoBehaviour
     //----------------------------when ingredient is clicked------------------------------
     public void SelectIngrediant(int ingredient)
     {
+        Debug.Log(player);
+
         //Does player have any?
         if (player.GetIngredientCount() > 0 && playerIngredients[ingredient] != -1)
         {
@@ -242,15 +249,33 @@ public class PotionStation : MonoBehaviour
             if (recipeName_current.Equals("Poison"))
             {
                 ImageToOutput = Image_Poison;
-                Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, PotionSpawnTransform, false);
+                if(player.IsShadowed())
+                {
+                    Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, PotionSpawnTransform_Shadowed, false);
+
+                }
+                else
+                {
+                    Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, PotionSpawnTransform, false);
+
+                }
                 player.SetPotion(Spawned_Poison_Prefab, recipeName_current);
             }
             else if(recipeName_current.Equals("ShadowRealm"))
             {
                 ImageToOutput = Image_ShadowRealm;
-                Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, PotionSpawnTransform, false);
-                player.SetPotion(Spawned_ShadowRealm_Prefab, recipeName_current);
                 player.ActivateShadowRealm();
+                if (player.IsShadowed())
+                {
+                    Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, ShadowRealmPotionSpawnTransform, false);
+
+                }
+                else
+                {
+                    Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, ShadowRealmPotionSpawnTransform, false);
+
+                }
+                player.SetPotion(Spawned_ShadowRealm_Prefab, recipeName_current);
             }
             
         }

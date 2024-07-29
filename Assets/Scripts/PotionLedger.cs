@@ -28,11 +28,12 @@ public class PotionLedger : MonoBehaviour
 
         }
 
+
         //Scrample alphabet
         EncryptAlphabet();
 
         //get message
-        decryptedMessage = "TAXES PIZZA EGG";
+        decryptedMessage = "SILKWORM ROCKCRYSTAL COPPER";
 
         EncryptMessage(decryptedMessage);
 
@@ -101,6 +102,8 @@ public class PotionLedger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Trigger");
+
         if(other.CompareTag("Player"))
         {
             PosionOrder.SetActive(true);

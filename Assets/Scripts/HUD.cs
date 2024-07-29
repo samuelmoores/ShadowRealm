@@ -33,7 +33,7 @@ public class HUD : MonoBehaviour
     {
         slider = GetComponent<Slider>();
         player = GameObject.Find("Player").GetComponent<PlayerController>();
-        potionLedger = GameObject.Find("PotionLedger").GetComponent<PotionLedger>();
+        potionLedger = GameObject.Find("AlchemyStationLedger").GetComponent<PotionLedger>();
         PauseMenu.SetActive(false);
         SettingsMenu.SetActive(false);
         Toggle_InvertCamera.isOn = true;
