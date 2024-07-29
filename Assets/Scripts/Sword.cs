@@ -54,7 +54,7 @@ public class Sword : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player") && !damagedPlayer && inflictDamage)
+        if(other.CompareTag("Player") && !damagedPlayer && inflictDamage && !player.IsDodgingBlocking())
         {
             Debug.Log("sword hit player");
             damagedPlayer = true;

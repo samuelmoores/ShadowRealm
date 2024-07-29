@@ -55,6 +55,8 @@ public class PlayerController : MonoBehaviour
     int numOfAttacks;
     bool inflictDamage;
     bool dodgeRolling;
+    float dodgeRollTimer;
+    bool isBlocking;
     bool hasPoison;
     bool shadowRealmActivated;
     float attackTimer;
@@ -64,6 +66,7 @@ public class PlayerController : MonoBehaviour
     float animationLength_Attack_02;
     float animationLength_DumpPoison;
     float animationLength_ShadowFist;
+    float animationLength_DodgeRoll;
 
 
     /*******************Damaging******************/
@@ -125,12 +128,15 @@ public class PlayerController : MonoBehaviour
         hasPoison = false;
         shadowRealmActivated = false;
         dodgeRolling = false;
+        isBlocking = false;
         attackTimer = 0.0f;
+        dodgeRollTimer = 0.0f;
         shadowFistScalar = 0.0f;
         animationLength_Attack_01 = 1.267f;
         animationLength_Attack_02 = 1.833f;
         animationLength_DumpPoison = 4.0f;
         animationLength_ShadowFist = 2.4f;
+        animationLength_DodgeRoll = 1.167f;
 
         //---------Damage----------
         health = 1.0f;
@@ -152,7 +158,8 @@ public class PlayerController : MonoBehaviour
         ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
         //****************DEBUG**********************
-        //ShadowIdentity();
+        ShadowIdentity();
+        //ActivateShadowRealm();
         //*****************DEBUG*********************
     }
 
@@ -192,7 +199,7 @@ public class PlayerController : MonoBehaviour
             SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
 
             //let the game run while player is crafting but inhibit movement
-            if (isCrafting || isDead)
+            if (isCrafting || isDead || isBlocking)
             {
                 moveDirection = Vector3.zero;
                 velocity = Vector3.zero;
@@ -214,6 +221,11 @@ public class PlayerController : MonoBehaviour
                 if (isDamaged)
                 {
                     RunDamageTimer(1.3f);
+                }
+
+                if(dodgeRolling)
+                {
+                    RunDodgeRollTimer();
                 }
 
             }
@@ -301,8 +313,10 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("runVelocity", velocity_run.magnitude);
         animator.SetBool("isAttacking", isAttacking);
         animator.SetBool("inAir", inAir);
+        animator.SetBool("isBlocking", isBlocking);
 
-        if(!identityShadowed)
+
+        if (!identityShadowed)
         {
             animator.SetBool("ShadowSprint", true);
 
@@ -381,12 +395,26 @@ public class PlayerController : MonoBehaviour
 
         }
     }
-    public void DodgeBlock(InputAction.CallbackContext context)
+    public void DodgeRoll(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && !isDamaged && !isAttacking && !isCrafting && !dodgeRolling)
+        if(context.performed && characterController.isGrounded && !isDamaged && !isAttacking && !isCrafting && !dodgeRolling && !identityShadowed)
         {
             dodgeRolling = true;
             animator.SetTrigger("DodgeRoll");
+        }
+    }
+
+    public void Block(InputAction.CallbackContext context)
+    {
+        if (context.performed && characterController.isGrounded && !isDamaged && !isAttacking && !isCrafting && identityShadowed)
+        {
+            isBlocking = true;
+        }
+
+        if (context.canceled)
+        {
+            isBlocking = false;
+
         }
     }
 
@@ -636,6 +664,24 @@ public class PlayerController : MonoBehaviour
 
 
         shadowRealmActivated = true;
+    }
+
+    void RunDodgeRollTimer()
+    {
+        if(dodgeRollTimer < animationLength_DodgeRoll)
+        {
+            dodgeRollTimer += Time.deltaTime;
+        }
+        else
+        {
+            dodgeRollTimer = 0.0f;
+            dodgeRolling = false;
+        }
+    }
+
+    public bool IsDodgingBlocking()
+    {
+        return dodgeRolling || isBlocking;
     }
 
     //**********Crafting*********

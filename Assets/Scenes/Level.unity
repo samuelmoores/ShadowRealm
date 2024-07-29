@@ -4324,6 +4324,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CastlePillar (14)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4968,6 +4972,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
       propertyPath: m_Name
       value: CastlePillar (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11141,6 +11149,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CastlePillar (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11557,6 +11569,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
       propertyPath: m_Name
       value: CastlePillar (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -37393,6 +37409,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CastlePillar (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -37772,6 +37792,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
       propertyPath: m_Name
       value: CastlePillar (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -38808,6 +38832,34 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 54f85a25-f03f-443f-8889-4495520964e6
     m_ActionName: Gameplay/Pause[/Keyboard/tab,/XInputControllerWindows/start]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1378301847}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: DodgeRoll
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1378301847}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: Block
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0ea2de13-3093-43d7-9ce0-b39d65db4435
+    m_ActionName: Gameplay/Dodge/Block[/XInputControllerWindows/buttonEast,/Keyboard/f]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Gameplay
@@ -46701,6 +46753,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
       propertyPath: m_Name
       value: CastlePillar (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e8763093eb343fe45bff00cb703b2fdf, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
