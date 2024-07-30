@@ -18,6 +18,7 @@ TagManager:
   - Ingrediant
   - DungeonGuard
   - CastleGuard
+  - KingShadowFist
   layers:
   - Default
   - TransparentFX

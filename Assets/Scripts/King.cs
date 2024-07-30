@@ -10,10 +10,12 @@ public class King : MonoBehaviour
 {
     public GameObject healthBarObject;
     public Slider healthBar; 
+    public Transform Chest;
     NavMeshAgent agent;
     PlayerController player;
     Animator animator;
     CharacterController controller;
+    Rigidbody[] ragdollColliders;
     float distanceFromPlayer;
     bool isStanding;
     bool playerFound;
@@ -31,12 +33,16 @@ public class King : MonoBehaviour
     bool canAttack;
     bool isInflictingDamage;
     bool goToNextAttack;
+    bool attackInit;
 
     //----Damage-----
     float damageTimer;
     float health;
     bool isDead;
     bool isDamaged;
+    float damagedAnimationLength;
+    bool isHurt;
+    bool isPunishable;
 
     // Start is called before the first frame update
     void Start()
@@ -47,11 +53,19 @@ public class King : MonoBehaviour
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
 
+        ragdollColliders = this.gameObject.GetComponentsInChildren<Rigidbody>();
+
+        foreach (var rb in ragdollColliders)
+        {
+            rb.isKinematic = true;
+        }
+
 
         //-----attacking----
         isInflictingDamage = false;
-        numOfAttacks = 3;
+        numOfAttacks = 4;
         currentAttack = 0;
+        attackInit = true;
 
 
         //----takingDamage----
@@ -59,6 +73,9 @@ public class King : MonoBehaviour
         isDamaged = false;
         damageTimer = 0.0f;
         isDead = false;
+        damagedAnimationLength = 0.0f;
+        isHurt = false;
+        isPunishable = false;
 
         //----animations
         standUp = 4.833f;
@@ -67,11 +84,12 @@ public class King : MonoBehaviour
         animationTimer = 0.0f;
 
         //---triggers---
-        canAttack = false;
+        canAttack = true;
         isAttacking = false;
         isStanding = false;
         playerFound = false;
         goToNextAttack = true;
+        
     }
 
     // Update is called once per frame
@@ -85,19 +103,10 @@ public class King : MonoBehaviour
             agent.destination = player.transform.position;
             RotateTowardsPlayer();
             healthBar.value = health;
-            animator.SetBool("isAttacking", isAttacking);
-            animator.SetInteger("AttackNumber", currentAttack);
-
+            
             if (distanceFromPlayer <= agent.stoppingDistance)
             {
                 isAttacking = true;
-            }
-            else
-            {
-                currentAttack = 0;
-                isAttacking = false;
-                canAttack = false;
-                agent.isStopped = false;
             }
 
             if(isAttacking && player.IsAlive())
@@ -105,7 +114,6 @@ public class King : MonoBehaviour
                 switch(currentAttack)
                 {
                     case 0:
-
                         Attack(2.733f);
                         break;
                     case 1:
@@ -116,12 +124,16 @@ public class King : MonoBehaviour
 
                         Attack(2.267f);
                         break;
+		            case 3:
+			            Attack(3.8f);
+			            break;
                 }
             }
 
             if(isDamaged)
             {
-                RunDamageTimer(0.967f);
+                RunDamageTimer(damagedAnimationLength);
+		
             }
 
             if (!player.IsAlive())
@@ -142,10 +154,43 @@ public class King : MonoBehaviour
 
     private void Attack(float animationLength)
     {
+
+        if(canAttack)
+        {
+            if(!isHurt)
+            {
+                currentAttack = Random.Range(0, 3);
+
+            }
+            else
+            {
+                currentAttack = 3;
+                agent.angularSpeed = 0.0f;
+            }
+
+            canAttack = false;
+            switch(currentAttack)
+            {
+                case 0:
+                    animator.SetTrigger("Attack_01");
+                    break;
+                case 1:
+                    animator.SetTrigger("Attack_02");
+                    break;
+                case 2:
+                    animator.SetTrigger("Attack_03");
+                    break;
+                case 3:
+                    animator.SetTrigger("Attack_04");
+                    break;
+            }
+        }
+
+        float finalThird = animationLength - (animationLength / 3.0f);
+
         //wait for animation
         if (animationTimer < animationLength && isAttacking)
         {
-            //Debug.Log(animationTimer);
             animationTimer += Time.deltaTime;
             agent.isStopped = true;
 
@@ -153,19 +198,31 @@ public class King : MonoBehaviour
         else
         {
             animationTimer = 0.0f;
-            goToNextAttack = true;
+	        agent.isStopped = false;
+	        isAttacking = false;
+            canAttack = true;
+            agent.angularSpeed = 720.0f;
+
         }
 
-        if(animationTimer > 0.5f && goToNextAttack)
+
+        if (animationTimer > finalThird)
         {
-            currentAttack++;
-
-            if (currentAttack == numOfAttacks)
-            {
-                currentAttack = 0;
-            }
-            goToNextAttack = false;
+            isPunishable = true;
+            Debug.Log("Punishable");
         }
+        else
+        {
+            Debug.Log("----------------------------------");
+
+            isPunishable = false;
+        }
+	
+    }
+
+    public bool IsPunishable()
+    {
+        return isPunishable;
     }
 
     public void InflictDamage()
@@ -179,7 +236,10 @@ public class King : MonoBehaviour
 
         if(health <= 0.0f)
         {
+	        isDamaged = false;
             isDead = true;
+            healthBar.value = 0.0f;
+            EnableRagdoll();
         }
         else
         {
@@ -192,11 +252,14 @@ public class King : MonoBehaviour
         if(damageTimer < animationLength)
         {
             damageTimer += Time.deltaTime;
+	        agent.isStopped = true;
         }
         else
         {
             damageTimer = 0.0f;
             isDamaged = false;
+	        isAttacking = false;
+	        agent.isStopped = false;
 
         }
     }
@@ -213,16 +276,13 @@ public class King : MonoBehaviour
         {
             playerFound = true;
         }
-        else
-        {
-            healthBarObject.SetActive(false);
 
-        }
 
         if (!isStanding && playerFound) //&& player.HasActivatedShadowRealm())
         {
             //show health bar
             healthBarObject.SetActive(true);
+	        animator.SetBool("isHurt", false);
 
             //start animation
             animator.SetBool("StandUp", true);
@@ -251,16 +311,55 @@ public class King : MonoBehaviour
     {
         if(other.CompareTag("PlayerWeapon") && player.InflictDamage() && !isDamaged &&!isAttacking)
         {
-            TakeDamage(0.3f);
-        }
-
-        if (other.CompareTag("ShadowFist") && player.InflictDamage())
-        {
-            animator.SetTrigger("Hurt");
             isAttacking = false;
+	        damagedAnimationLength = 0.967f;
             TakeDamage(0.3f);
         }
 
+        if (other.CompareTag("PlayerWeapon") && player.InflictDamage())
+        {
+	        if(!isHurt)
+	        {
+		        animator.SetTrigger("ShadowHit");
+	            animator.SetBool("isHurt", true);
+	            damagedAnimationLength = 6.033f;
+		        isHurt = true;
+		        agent.stoppingDistance = 5.0f;
+	        }
+	     
+            isAttacking = false;
+
+            TakeDamage(0.6f);
+        }
+
+    }
+
+    private void EnableRagdoll()
+    {
+        animator.enabled = false;
+        GetComponent<CharacterController>().enabled = false;
+        CapsuleCollider[] cols = GetComponents<CapsuleCollider>();
+
+        for (int i = 0; i < 2; i++)
+        {
+            cols[i].enabled = false;
+        }
+
+        agent.enabled = false;
+
+        foreach (var rb in ragdollColliders)
+        {
+            rb.isKinematic = false;
+        }
+
+        Vector3 shadowForce = transform.position - player.transform.position;
+        shadowForce.Normalize();
+        shadowForce.y = 0.0f;
+
+        Debug.Log(shadowForce * 50000f);
+
+        Chest.GetComponent<Rigidbody>().AddForce(shadowForce * 50000f);
+        Chest.GetComponent<Rigidbody>().AddForce(Vector3.up * 15000f);
     }
 
 }

@@ -38,9 +38,7 @@ public class HUD : MonoBehaviour
         SettingsMenu.SetActive(false);
         Toggle_InvertCamera.isOn = true;
         Slider_Sensitivity.value = 0.5f;
-        Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet_display;
-        Text_Alphabet.text = potionLedger.alphabet_display;
-        Text_EncryptedMessage.text = potionLedger.encryptedMessage;
+        
         numOfIngredientImages = 0;
     }
 
@@ -48,6 +46,10 @@ public class HUD : MonoBehaviour
     void Update()
     {
         SetHealthBar();
+        Text_EncryptionAlphabet.text = potionLedger.encryptionAlphabet_display;
+        Text_Alphabet.text = potionLedger.alphabet_display;
+        Text_EncryptedMessage.text = potionLedger.encryptedMessage;
+
     }
 
     public void AddIngrediantImage(GameObject ingrediant,int index)

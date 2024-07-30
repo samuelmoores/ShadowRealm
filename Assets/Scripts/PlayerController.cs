@@ -158,7 +158,7 @@ public class PlayerController : MonoBehaviour
         ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
         //****************DEBUG**********************
-        ShadowIdentity();
+        //ShadowIdentity();
         //ActivateShadowRealm();
         //*****************DEBUG*********************
     }
@@ -313,14 +313,11 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("runVelocity", velocity_run.magnitude);
         animator.SetBool("isAttacking", isAttacking);
         animator.SetBool("inAir", inAir);
-        animator.SetBool("isBlocking", isBlocking);
 
-
-        if (!identityShadowed)
-        {
-            animator.SetBool("ShadowSprint", true);
-
-        }
+	    if(identityShadowed)
+	    {
+            animator.SetBool("isBlocking", isBlocking);
+	    }
 
         //if running on ground
         if (velocity_run.magnitude > 0.0f && !inAir && attackTimer <= 0.0f)
@@ -397,7 +394,7 @@ public class PlayerController : MonoBehaviour
     }
     public void DodgeRoll(InputAction.CallbackContext context)
     {
-        if(context.performed && characterController.isGrounded && !isDamaged && !isAttacking && !isCrafting && !dodgeRolling && !identityShadowed)
+        if(context.performed && characterController.isGrounded && !isDamaged && !isAttacking && !isCrafting && !dodgeRolling && shadowRealmActivated)
         {
             dodgeRolling = true;
             animator.SetTrigger("DodgeRoll");
@@ -548,7 +545,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("ShadowFist"))
+        if (other.CompareTag("KingShadowFist") && !dodgeRolling)
         {
             hit = true;
         }
@@ -563,7 +560,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("ShadowFist"))
+        if (other.CompareTag("KingShadowFist"))
         {
             hit = false;
         }
@@ -619,9 +616,15 @@ public class PlayerController : MonoBehaviour
         else
         {
             isDamaged = false;
-
-            speed_run = default_speed_run;
-            speed_rotation = default_speed_rotation;
+	    if(shadowRealmActivated)
+	    {
+		speed_run = default_speed_run * 2.0f;
+	    }
+	    else
+	    {
+                speed_run = default_speed_run;
+            }
+	    speed_rotation = default_speed_rotation;
             damageTimer = 0.0f;
         }
     }

@@ -91,6 +91,7 @@ public class PotionLedger : MonoBehaviour
             encryptionAlphabet += alphabet[usedIndex[i]];
             encryptionAlphabet_display += "[" + (i + 1) + "]" + alphabet[usedIndex[i]] + "\n";
             numberValid = false;
+            Debug.Log(encryptionAlphabet);
         }
     }
 
