@@ -13,6 +13,7 @@ public class Enemy : MonoBehaviour
     public float attackCoolDown; 
     public AudioClip[] footsteps;
     public AudioClip[] grunts;
+    public AudioClip boomSound;
 
     int previousFootstep;
     int previousGrunt;
@@ -237,6 +238,7 @@ public class Enemy : MonoBehaviour
             if(player.HasActivatedShadowRealm())
             {
                 TakeDamage(2.0f);
+                AudioSource.PlayClipAtPoint(boomSound, transform.position);
             }
             else if(!player.HasPoison() && player.InflictDamage())
             {

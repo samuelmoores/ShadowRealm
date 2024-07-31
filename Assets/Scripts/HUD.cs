@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Cinemachine;
 using TMPro;
+using UnityEngine.TextCore.Text;
 
 public class HUD : MonoBehaviour
 {
@@ -17,6 +18,11 @@ public class HUD : MonoBehaviour
     public TextMeshProUGUI Text_EncryptionAlphabet;
     public TextMeshProUGUI Text_EncryptedMessage;
     public TextMeshProUGUI Text_Alphabet;
+    public GameObject playerHealthBar;
+    public GameObject enemyHealthBar;
+    public GameObject credits;
+
+
 
     public GameObject[] Ingrediant_Images;
     public Sprite Image_None;
@@ -26,6 +32,10 @@ public class HUD : MonoBehaviour
     PlayerController player;
     PotionLedger potionLedger;
     int numOfIngredientImages;
+    float value_y;
+    float value_x;
+
+
 
 
     // Start is called before the first frame update
@@ -50,6 +60,7 @@ public class HUD : MonoBehaviour
         Text_Alphabet.text = potionLedger.alphabet_display;
         Text_EncryptedMessage.text = potionLedger.encryptedMessage;
 
+
     }
 
     public void AddIngrediantImage(GameObject ingrediant,int index)
@@ -69,7 +80,6 @@ public class HUD : MonoBehaviour
     public void AdjustSensitivity()
     {
         float value = Slider_Sensitivity.value;
-        float value_y;
 
         if (value <= 0.5)
         {
@@ -83,8 +93,6 @@ public class HUD : MonoBehaviour
         }
 
         cam.m_YAxis.m_MaxSpeed = value_y;
-
-        float value_x;
 
         if (value <= 0.5)
         {
@@ -106,13 +114,21 @@ public class HUD : MonoBehaviour
         if(cam.m_YAxis.m_InvertInput)
         {
             cam.m_YAxis.m_InvertInput = false;
-            Toggle_InvertCamera.isOn = true;
+            //Toggle_InvertCamera.isOn = true;
         }
         else
         {
             cam.m_YAxis.m_InvertInput = true;
-            Toggle_InvertCamera.isOn = false;
+            //Toggle_InvertCamera.isOn = false;
         }
+    }
+
+    public void HideHealthBars()
+    {
+        playerHealthBar.SetActive(false);
+        enemyHealthBar.SetActive(false);
+        credits.SetActive(true);
+
     }
 
     private void SetHealthBar()
@@ -125,6 +141,9 @@ public class HUD : MonoBehaviour
         //----Pause Game----------
         player.SetGameIsPaused(true);
         Time.timeScale = 0.0f;
+
+        Cursor.visible = true;
+
 
         //Prevent player from jumping/attacking when game is unpause
         //since selecting resume and jump/attack are the same button
@@ -165,7 +184,11 @@ public class HUD : MonoBehaviour
     public void ResumeGame()
     {
         Time.timeScale = 1.0f;
+        Cursor.visible = false;
+
         PauseMenu.SetActive(false);
         player.SetGameIsPaused(false);
+        cam.m_YAxis.m_MaxSpeed = value_y;
+        cam.m_XAxis.m_MaxSpeed = value_x;
     }
 }

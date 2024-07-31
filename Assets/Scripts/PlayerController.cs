@@ -1,13 +1,7 @@
 using Cinemachine;
-using System.Collections.Generic;
-using System.Resources;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.Audio;
-using UnityEngine.EventSystems;
-using JetBrains.Annotations;
 
 //Movement code courtesy of Ketra Games
 
@@ -101,6 +95,7 @@ public class PlayerController : MonoBehaviour
     bool gameIsPaused;
     [HideInInspector] public float unPauseTimer;
     [HideInInspector] public float unPauseTimer_current;
+    bool hasWon;
 
     /*******************Sound******************/
     public AudioClip[] footsteps;
@@ -138,8 +133,7 @@ public class PlayerController : MonoBehaviour
         inAir = false;
         inAirTimer = 0.0f;
         jumpTimer = 0.5f;
-        speed_camera_x = cam.m_XAxis.m_MaxSpeed;
-        speed_camera_y = cam.m_YAxis.m_MaxSpeed;
+      
         fellInCasm = false;
 
 
@@ -175,6 +169,8 @@ public class PlayerController : MonoBehaviour
         gameIsPaused = false;
         unPauseTimer = 0.2f;
         unPauseTimer_current = 0.0f;
+        hasWon = false;
+        Cursor.visible = false;
 
         //-------Crafting-----------
         ingredients = new GameObject[9];
@@ -227,7 +223,7 @@ public class PlayerController : MonoBehaviour
             
 
             //let the game run while player is crafting but inhibit movement
-            if (isCrafting || isDead || isBlocking)
+            if (isCrafting || isDead || isBlocking || hasWon)
             {
                 velocity = Vector3.zero;
                 unPauseTimer_current = unPauseTimer;
@@ -236,8 +232,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                cam.m_XAxis.m_MaxSpeed = speed_camera_x;
-                cam.m_YAxis.m_MaxSpeed = speed_camera_y;
+                
                 if(!inAir)
                 {
                     Run(moveDirection);
@@ -758,7 +753,10 @@ public class PlayerController : MonoBehaviour
 
     public void Win()
     {
+        hasWon = true;
         animator.SetTrigger("Win");
+        ShadowFist.SetActive(false);
+        hud.HideHealthBars();
     }
 
     //**********Crafting*********
