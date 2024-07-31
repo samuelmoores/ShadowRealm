@@ -3,7 +3,17 @@ guid: 7592df2d767b2d94090baee4605cd7d3
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Lead
+    second: {fileID: 2100000, guid: 40bb1ecf78381294b9b863bfd374ecb3, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: _Lead_LeadShape_color
+    second: {fileID: 2800000, guid: 7442e0ed7c779c841869cb56dafcac27, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

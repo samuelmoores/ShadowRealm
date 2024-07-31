@@ -44,6 +44,7 @@ public class Enemy : MonoBehaviour
     bool isAttacking;
     float attackTimer;
     bool inflictDamage;
+    bool playerFound;
 
     // Start is called before the first frame update
     void Start()
@@ -76,6 +77,7 @@ public class Enemy : MonoBehaviour
         isAttacking = false;
         attackTimer = attackCoolDown;
         inflictDamage = false;
+        playerFound = false;
 
     }
 
@@ -86,6 +88,11 @@ public class Enemy : MonoBehaviour
         if (!isDead && !player.IsShadowed())
         {
             distanceFromPlayer = Vector3.Distance(transform.position, player.transform.position);
+
+            if(distanceFromPlayer < 20.0f)
+            {
+                playerFound = true;
+            }
 
             if (startTimer > 0.0f)
             {
@@ -101,7 +108,7 @@ public class Enemy : MonoBehaviour
                 }
             }
 
-            if (distanceFromPlayer < 100.0f)
+            if (playerFound)
             {
 
                 Move();
@@ -225,7 +232,7 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("PlayerWeapon"))
+        if (other.CompareTag("ShadowFist"))
         {
             if(player.HasActivatedShadowRealm())
             {

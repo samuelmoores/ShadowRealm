@@ -3,7 +3,17 @@ guid: 2a6e45d1cc6c309408b9bae7ed215481
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_SilkWorm
+    second: {fileID: 2100000, guid: ee78fc0dea014ca46ade7b4e482057a6, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: _SilkWarm_SilkWarmShape_color
+    second: {fileID: 2800000, guid: 2d2b6f117440b8f4db74aebb7d17625e, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

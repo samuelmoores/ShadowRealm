@@ -20,7 +20,7 @@ public class Ingrediant : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Rotate(Vector3.up, Time.deltaTime * rotateSpeed);
+        transform.Rotate(Vector3.up, Time.deltaTime * rotateSpeed, Space.World);
         
         
     }

@@ -3,7 +3,22 @@ guid: 5c394382bcb52e949bda14e11658fa16
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_MullberryLeaf
+    second: {fileID: 2100000, guid: 4c656b5db9c3cb74ebd4a051a5e19fff, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: standardSurface1
+    second: {fileID: 2100000, guid: 70dae63ccfcb4274fa4300f13f171dbb, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: _MullberryLeaf_MullberryLeafShape_baseColor
+    second: {fileID: 2800000, guid: dc71f430cd3c3cc46af51759853a0d56, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

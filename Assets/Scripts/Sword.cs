@@ -7,7 +7,7 @@ public class Sword : MonoBehaviour
 {
     Enemy enemy;
     PlayerController player;
-    public float damageAmount;
+    float damageAmount;
     float attackTime;
     int attackCount;
     bool inflictDamage;
@@ -22,6 +22,7 @@ public class Sword : MonoBehaviour
         attackCount = 0;
         canInflictDamage = true;
         damagedPlayer = false;
+        damageAmount = 0.3f;
     }
 
     // Update is called once per frame

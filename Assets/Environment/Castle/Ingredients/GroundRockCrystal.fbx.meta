@@ -3,7 +3,17 @@ guid: 97ebb9cdb998b884dab1ab525fe0e6d9
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_RockCrystal
+    second: {fileID: 2100000, guid: faf521e846bbd8f419c5da8c19c828b6, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: _GroundRockCrystal_GroundRockCrystalShape_color
+    second: {fileID: 2800000, guid: 3dc80cdabe75fe0488cf71ff2ef77ad5, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

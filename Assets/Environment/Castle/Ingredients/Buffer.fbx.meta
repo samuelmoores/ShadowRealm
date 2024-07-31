@@ -3,7 +3,17 @@ guid: 7e2b57db5bcefc54c8a7e3dbba2d48ed
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Buffer
+    second: {fileID: 2100000, guid: 9869db5f3eeb24c45a22767126eb2284, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: _Buffer_BufferShape_color
+    second: {fileID: 2800000, guid: 5d441db09d4ae7c4180ea57fe62b4b86, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

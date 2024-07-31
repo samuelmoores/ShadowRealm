@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
 using UnityEngine.EventSystems;
+using JetBrains.Annotations;
 
 //Movement code courtesy of Ketra Games
 
@@ -27,6 +28,7 @@ public class PlayerController : MonoBehaviour
     public GameObject paladin;
     public Transform SwordBackSocket;
     public AudioSource shadowRealmSource;
+    public ParticleSystem TheSHADOWREALM;
     
     CharacterController characterController;
     Transform cameraTransform;
@@ -83,6 +85,7 @@ public class PlayerController : MonoBehaviour
     bool startRespawnTimer;
     float respawnTimer;
     float respawnTimerDefault;
+    int previousDamageSound;
 
     /*******************Crafting******************/
     GameObject Potion;
@@ -103,10 +106,10 @@ public class PlayerController : MonoBehaviour
     public AudioClip[] footsteps;
     public AudioClip[] swooshes;
     public AudioClip[] grunts;
+    public AudioClip[] damageSounds;
     public AudioClip activateShadowRealmSound;
 
     public AudioSource source;
-
 
     int previousFootstep;
     int previousSwoosh;
@@ -117,6 +120,7 @@ public class PlayerController : MonoBehaviour
     {
         //Player State
         state = State.Idle;
+
 
         //----------Components-------
         characterController = GetComponent<CharacterController>();
@@ -179,7 +183,7 @@ public class PlayerController : MonoBehaviour
         hasShadowPotion = false;
 
         //****************DEBUG**********************
-        ShadowIdentity();
+        //ShadowIdentity();
         //ActivateShadowRealm();
         //*****************DEBUG*********************
     }
@@ -627,6 +631,8 @@ public class PlayerController : MonoBehaviour
     {
         if (hit)
         {
+            
+
             health -= damageAmount;
             damageCount++;
             damageAnimation = 1;
@@ -707,11 +713,16 @@ public class PlayerController : MonoBehaviour
             UnShadow();
         }
 
+        TheSHADOWREALM.Play();
+
         shadowRealmSource.clip = activateShadowRealmSound;
         shadowRealmSource.volume = 1.0f;
         shadowRealmSource.Play();
 
-        GameObject.Find("ShadowRealmPotion(Clone)").SetActive(false);
+        if (GameObject.Find("ShadowRealmPotion(Clone)"))
+        {
+            GameObject.Find("ShadowRealmPotion(Clone)").SetActive(false);
+        }
 
         Debug.Log(source.clip);
 
@@ -738,6 +749,11 @@ public class PlayerController : MonoBehaviour
     public bool IsDodgingBlocking()
     {
         return dodgeRolling || isBlocking;
+    }
+
+    public void Win()
+    {
+        animator.SetTrigger("Win");
     }
 
     //**********Crafting*********

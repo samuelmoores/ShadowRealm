@@ -11,11 +11,23 @@ public class King : MonoBehaviour
     public GameObject healthBarObject;
     public Slider healthBar; 
     public Transform Chest;
+    public AudioClip[] attackSounds;
+    public AudioClip[] damageSounds;
+    public AudioClip[] swooshes;
+    public AudioClip[] footsteps;
+    public AudioClip boomSound;
     NavMeshAgent agent;
     PlayerController player;
     Animator animator;
     CharacterController controller;
     Rigidbody[] ragdollColliders;
+    public AudioSource footSource;
+    public AudioSource yellSource;
+    public AudioSource musicSource;
+    public AudioSource boomSource;
+
+
+
     float distanceFromPlayer;
     bool isStanding;
     bool playerFound;
@@ -23,6 +35,7 @@ public class King : MonoBehaviour
     //-----animations----
     float animationTimer;
     float standUp;
+    int i;
 
     //------defending----
 
@@ -34,6 +47,8 @@ public class King : MonoBehaviour
     bool isInflictingDamage;
     bool goToNextAttack;
     bool attackInit;
+    int previousCry;
+
 
     //----Damage-----
     float damageTimer;
@@ -52,6 +67,7 @@ public class King : MonoBehaviour
         player = GameObject.Find("Player").GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+        footSource = GetComponent<AudioSource>();
 
         ragdollColliders = this.gameObject.GetComponentsInChildren<Rigidbody>();
 
@@ -125,7 +141,7 @@ public class King : MonoBehaviour
                         Attack(2.267f);
                         break;
 		            case 3:
-			            Attack(3.8f);
+			            Attack(2.967f);
 			            break;
                 }
             }
@@ -186,7 +202,7 @@ public class King : MonoBehaviour
             }
         }
 
-        float finalThird = animationLength - (animationLength / 3.0f);
+        float secondHalf = animationLength - (animationLength / 2.0f);
 
         //wait for animation
         if (animationTimer < animationLength && isAttacking)
@@ -206,18 +222,46 @@ public class King : MonoBehaviour
         }
 
 
-        if (animationTimer > finalThird)
+        if (animationTimer > secondHalf)
         {
             isPunishable = true;
-            Debug.Log("Punishable");
         }
         else
         {
-            Debug.Log("----------------------------------");
 
             isPunishable = false;
         }
 	
+    }
+
+    public void Boom()
+    {
+        yellSource.clip = boomSound;
+        yellSource.Play();
+    }
+
+    public void AttackCry()
+    {
+        Debug.Log("AttackCrySound");
+        int cry = Random.Range(0, 5);
+        while (cry == previousCry)
+        {
+            cry = Random.Range(0, 5);
+        }
+        yellSource.clip = attackSounds[cry];
+        yellSource.volume = 0.50f;
+        yellSource.Play();
+        previousCry = cry;
+    }
+
+    public void Footstep()
+    {
+        footSource.clip = footsteps[i++];
+        footSource.Play();
+        if(i > 1)
+        {
+            i = 0;
+        }
     }
 
     public bool IsPunishable()
@@ -227,19 +271,38 @@ public class King : MonoBehaviour
 
     public void InflictDamage()
     {
-        player.TakeDamage(0.1f);
+        if(player.HasActivatedShadowRealm())
+        {
+            player.TakeDamage(0.4f);
+
+        }
+        else
+        {
+            player.TakeDamage(1.1f);
+        }
     }
 
     public void TakeDamage(float damageAmount)
     {
         health -= damageAmount;
 
-        if(health <= 0.0f)
+        if (!isHurt && health < 0.2f)
+        {
+            animator.SetTrigger("ShadowHit");
+            animator.SetBool("isHurt", true);
+            damagedAnimationLength = 6.033f;
+            isHurt = true;
+            agent.stoppingDistance = 5.0f;
+        }
+
+        if (health <= 0.0f)
         {
 	        isDamaged = false;
             isDead = true;
             healthBar.value = 0.0f;
             EnableRagdoll();
+            musicSource.Stop();
+            player.Win();
         }
         else
         {
@@ -274,6 +337,10 @@ public class King : MonoBehaviour
 
         if (distanceFromPlayer < 20.0f)
         {
+            if(!playerFound)
+            {
+                boomSource.Play();
+            }
             playerFound = true;
         }
 
@@ -286,6 +353,11 @@ public class King : MonoBehaviour
 
             //start animation
             animator.SetBool("StandUp", true);
+            
+            yellSource.clip = attackSounds[0];
+            yellSource.Play();
+            musicSource.Play();
+
 
             //time animation
             if (animationTimer < standUp)
@@ -309,27 +381,19 @@ public class King : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("PlayerWeapon") && player.InflictDamage() && !isDamaged &&!isAttacking)
+        if(other.CompareTag("PlayerWeapon") && player.InflictDamage() && !isDamaged && !isAttacking)
         {
             isAttacking = false;
 	        damagedAnimationLength = 0.967f;
-            TakeDamage(0.3f);
+            TakeDamage(0.05f);
         }
 
-        if (other.CompareTag("PlayerWeapon") && player.InflictDamage())
+        if (other.CompareTag("ShadowFist") && player.InflictDamage() && !isDamaged && isStanding && isPunishable)
         {
-	        if(!isHurt)
-	        {
-		        animator.SetTrigger("ShadowHit");
-	            animator.SetBool("isHurt", true);
-	            damagedAnimationLength = 6.033f;
-		        isHurt = true;
-		        agent.stoppingDistance = 5.0f;
-	        }
-	     
             isAttacking = false;
+            boomSource.Play();
 
-            TakeDamage(0.6f);
+            TakeDamage(0.3f);
         }
 
     }

@@ -3,7 +3,17 @@ guid: e4a61d3240d4c1a4fa167c6301db4fbb
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Sulfate
+    second: {fileID: 2100000, guid: 6feefd8ef07c1ae45ae953cbc491c07f, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: SulfateShape_color
+    second: {fileID: 2800000, guid: f3f142f99fe74294d86a5e26f4633c9a, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
