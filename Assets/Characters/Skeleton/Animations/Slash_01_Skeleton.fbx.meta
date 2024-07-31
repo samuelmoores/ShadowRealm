@@ -57,6 +57,13 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
+      - time: 0.14496315
+        functionName: Swoosh
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 01572ec3e18dce94cbb5de6d8c48d2b1, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       - time: 0.38781223
         functionName: SetInflictDamage
         data: 

@@ -5,10 +5,12 @@ using UnityEngine;
 public class Cage : MonoBehaviour
 {
     public GameObject message;
+    public AudioClip cheerSound;
     bool isOpen;
 
     Minion minion;
     PlayerController player;
+    AudioSource source;
     bool hit;
 
     // Start is called before the first frame update
@@ -19,6 +21,7 @@ public class Cage : MonoBehaviour
 
         minion = GameObject.Find("Minion").GetComponent<Minion>();
         player = GameObject.Find("Player").GetComponent<PlayerController>();
+        source = GetComponent<AudioSource>();
         hit = false;
     }
 
@@ -44,6 +47,9 @@ public class Cage : MonoBehaviour
         {
             message.SetActive(true);
             player.ShadowIdentity();
+            source.clip = cheerSound;
+            source.volume = 0.15f;
+            source.Play();
 
         }
 

@@ -19,6 +19,8 @@ TagManager:
   - DungeonGuard
   - CastleGuard
   - KingShadowFist
+  - Environment
+  - Fountain
   layers:
   - Default
   - TransparentFX
@@ -26,7 +28,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Environment
   - 
   - 
   - 

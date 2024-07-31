@@ -5,6 +5,8 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
+using UnityEngine.EventSystems;
 
 //Movement code courtesy of Ketra Games
 
@@ -24,8 +26,8 @@ public class PlayerController : MonoBehaviour
     public GameObject skeleton;
     public GameObject paladin;
     public Transform SwordBackSocket;
-
-
+    public AudioSource shadowRealmSource;
+    
     CharacterController characterController;
     Transform cameraTransform;
     CinemachineFreeLook cam;
@@ -45,6 +47,7 @@ public class PlayerController : MonoBehaviour
     bool inAir;
     float jumpTimer;
     float inAirTimer;
+    bool fellInCasm;
 
     /*******************Attacking******************/
     public GameObject ShadowFist;
@@ -87,6 +90,7 @@ public class PlayerController : MonoBehaviour
     int[] ingredientIndeces;
     bool isCrafting;
     int numOfIngredients;
+    bool hasShadowPotion;
 
 
     /*******************UI******************/
@@ -94,6 +98,19 @@ public class PlayerController : MonoBehaviour
     bool gameIsPaused;
     [HideInInspector] public float unPauseTimer;
     [HideInInspector] public float unPauseTimer_current;
+
+    /*******************Sound******************/
+    public AudioClip[] footsteps;
+    public AudioClip[] swooshes;
+    public AudioClip[] grunts;
+    public AudioClip activateShadowRealmSound;
+
+    public AudioSource source;
+
+
+    int previousFootstep;
+    int previousSwoosh;
+    int previousGrunt;
 
     // Start is called before the first frame update
     void Start()
@@ -105,6 +122,7 @@ public class PlayerController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         cameraTransform = GameObject.Find("Main Camera").GetComponent<Transform>();
         animator = GetComponent<Animator>();
+        source = GetComponent<AudioSource>();
 
         hud = GameObject.Find("Canvas").GetComponent<HUD>();
         cam = GameObject.Find("ThirdPersonCamera").GetComponent<CinemachineFreeLook>();
@@ -118,6 +136,8 @@ public class PlayerController : MonoBehaviour
         jumpTimer = 0.5f;
         speed_camera_x = cam.m_XAxis.m_MaxSpeed;
         speed_camera_y = cam.m_YAxis.m_MaxSpeed;
+        fellInCasm = false;
+
 
         //-------Attacking-----------
         isAttacking = false;
@@ -156,9 +176,10 @@ public class PlayerController : MonoBehaviour
         ingredients = new GameObject[9];
         numOfIngredients = 0;
         ingredientIndeces = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+        hasShadowPotion = false;
 
         //****************DEBUG**********************
-        //ShadowIdentity();
+        ShadowIdentity();
         //ActivateShadowRealm();
         //*****************DEBUG*********************
     }
@@ -172,6 +193,7 @@ public class PlayerController : MonoBehaviour
             startRespawnTimer = true;
         }
 
+        
         if (!gameIsPaused)
         {
             if (startRespawnTimer)
@@ -198,20 +220,27 @@ public class PlayerController : MonoBehaviour
             Vector2 velocity_run;
             SetDirection(horizontal, vertical, out moveDirection, out velocity, out velocity_run);
 
+            
+
             //let the game run while player is crafting but inhibit movement
             if (isCrafting || isDead || isBlocking)
             {
-                moveDirection = Vector3.zero;
                 velocity = Vector3.zero;
                 unPauseTimer_current = unPauseTimer;
+
 
             }
             else
             {
                 cam.m_XAxis.m_MaxSpeed = speed_camera_x;
                 cam.m_YAxis.m_MaxSpeed = speed_camera_y;
-                Run(moveDirection);
+                if(!inAir)
+                {
+                    Run(moveDirection);
+                }
+
                 JumpOrFall();
+
                 if (isAttacking)
                 {
                     Attack();
@@ -229,6 +258,7 @@ public class PlayerController : MonoBehaviour
                 }
 
             }
+
             Move(velocity);
             SetState(velocity_run);
         }
@@ -277,7 +307,7 @@ public class PlayerController : MonoBehaviour
     }
     private void JumpOrFall()
     {
-        if (characterController.isGrounded)
+        if (characterController.isGrounded && !fellInCasm)
         {
             inAirTimer = 0.0f;
             speed_y = -9.8f;
@@ -291,7 +321,14 @@ public class PlayerController : MonoBehaviour
         {
             speed_y += Physics.gravity.y * Time.deltaTime;
 
+            if(fellInCasm)
+            {
+                speed_y += Physics.gravity.y * Time.deltaTime;
+
+            }
+
             inAirTimer -= Time.deltaTime;
+
 
             //guard against subtle times the player is not grounded
             //the fall animation should not play if the play is in air
@@ -552,7 +589,16 @@ public class PlayerController : MonoBehaviour
 
         if (other.CompareTag("Respawn"))
         {
+            respawnTimerDefault = 3.0f;
+
+            Grunt();
+            fellInCasm = true;
             startRespawnTimer = true;
+        }
+
+        if(other.CompareTag("Fountain") && hasShadowPotion && !shadowRealmActivated)
+        {
+            ActivateShadowRealm();
         }
 
 
@@ -660,8 +706,15 @@ public class PlayerController : MonoBehaviour
         {
             UnShadow();
         }
-        GameObject.Find("Sword").gameObject.SetActive(false);
-        GameObject.Find("SwordBack").gameObject.GetComponent<MeshRenderer>().enabled = true;
+
+        shadowRealmSource.clip = activateShadowRealmSound;
+        shadowRealmSource.volume = 1.0f;
+        shadowRealmSource.Play();
+
+        GameObject.Find("ShadowRealmPotion(Clone)").SetActive(false);
+
+        Debug.Log(source.clip);
+
         animator.SetBool("ShadowSprint", true);
         speed_run *= 2.0f;
 
@@ -737,10 +790,59 @@ public class PlayerController : MonoBehaviour
         gameIsPaused = pauseGame;
     }
 
+    //**********Sound*********
+    public void FootStep()
+    {
+        if(!fellInCasm)
+        {
+            int footStep = Random.Range(0, 7);
+            while(footStep == previousFootstep)
+            {
+                footStep = Random.Range(0, 8);
+            }
+            source.clip = footsteps[footStep];
+            previousFootstep = footStep;
+            source.volume = 0.05f;
+            source.Play();
+
+        }
+    }
+
+    public void Swoosh()
+    {
+        int swoosh = Random.Range(0, 4);
+        while (swoosh == previousSwoosh)
+        {
+            swoosh = Random.Range(0, 4);
+        }
+        source.clip = swooshes[swoosh];
+        source.volume = 0.15f;
+        source.Play();
+        previousSwoosh = swoosh;
+    }
+
+    public void Grunt()
+    {
+        int grunt = Random.Range(0, 10);
+        while (grunt == previousGrunt)
+        {
+            grunt = Random.Range(0, 10);
+        }
+        source.clip = grunts[grunt];
+        source.volume = 0.5f;
+        source.Play();
+        previousGrunt = grunt;
+    }
+
     //**********Helper*********
     public State GetState()
     {
         return state;
+    }
+
+    public void HasShadowPotion(bool value)
+    {
+        hasShadowPotion = value;
     }
     public float GetHealth()
     {

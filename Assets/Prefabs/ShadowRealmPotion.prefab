@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4045281771801518747}
   - component: {fileID: 6577957260722298855}
   - component: {fileID: 6113982405877946848}
-  m_Layer: 0
+  m_Layer: 1
   m_Name: ShadowRealmPotion
   m_TagString: Untagged
   m_Icon: {fileID: 0}

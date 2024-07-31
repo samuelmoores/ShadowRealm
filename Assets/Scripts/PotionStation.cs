@@ -36,6 +36,12 @@ public class PotionStation : MonoBehaviour
     public GameObject Output;
     public Sprite ImageToOutput;
     public Sprite Image_None;
+    public AudioClip selectSound;
+    public AudioClip outputSound;
+    public AudioClip poisonSound;
+    public AudioClip shadowRealmSound;
+
+    AudioSource source;
 
     //----Crafting-------
     PlayerController player;
@@ -52,9 +58,10 @@ public class PotionStation : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<PlayerController>();
+        source = GetComponent<AudioSource>();
         Input_Ingredients = new GameObject[3] { GameObject.CreatePrimitive(PrimitiveType.Cube), GameObject.CreatePrimitive(PrimitiveType.Cube), GameObject.CreatePrimitive(PrimitiveType.Cube) };
         poisonRecipe = new string[4] { "Buffer", "Sulfate", "Mercury", "Poison" };
-        shadowRealmRecipe = new string[4] { "RockCrystal", "SilkWorm", "MullberryLeaf", "ShadowRealm" };
+        shadowRealmRecipe = new string[4] { "Cow Dung", "Silk Worm", "Rock Crystal", "ShadowRealm" };
         recipeNames = new string[2] { "None", "None"};
         selectedIngredients = new int[3] { -1, -1, -1 };
         playerIngredients = new int[9] { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
@@ -94,8 +101,8 @@ public class PotionStation : MonoBehaviour
     //----------------------------when ingredient is clicked------------------------------
     public void SelectIngrediant(int ingredient)
     {
-        Debug.Log(player);
-
+        source.clip = selectSound;
+        source.Play();
         //Does player have any?
         if (player.GetIngredientCount() > 0 && playerIngredients[ingredient] != -1)
         {
@@ -236,7 +243,8 @@ public class PotionStation : MonoBehaviour
 
     private void SetOutput()
     {
-        for(int i = 0; i < 3; i++)
+        
+        for (int i = 0; i < 3; i++)
         {
             ValidateRecipe(Input_Ingredients[i], poisonRecipe, false, i);
             ValidateRecipe(Input_Ingredients[i], shadowRealmRecipe, true, i);
@@ -249,7 +257,11 @@ public class PotionStation : MonoBehaviour
             if (recipeName_current.Equals("Poison"))
             {
                 ImageToOutput = Image_Poison;
-                if(player.IsShadowed())
+                source.clip = poisonSound;
+                source.Play();
+
+
+                if (player.IsShadowed())
                 {
                     Spawned_Poison_Prefab = GameObject.Instantiate(Poison_Prefab, PotionSpawnTransform_Shadowed, false);
 
@@ -264,7 +276,12 @@ public class PotionStation : MonoBehaviour
             else if(recipeName_current.Equals("ShadowRealm"))
             {
                 ImageToOutput = Image_ShadowRealm;
-                player.ActivateShadowRealm();
+                player.HasShadowPotion(true);
+                player.UnShadow();
+                GameObject.Find("Sword").gameObject.SetActive(false);
+                GameObject.Find("SwordBack").gameObject.GetComponent<MeshRenderer>().enabled = true;
+                source.clip = shadowRealmSound;
+                source.Play();
                 if (player.IsShadowed())
                 {
                     Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, ShadowRealmPotionSpawnTransform, false);
@@ -272,7 +289,7 @@ public class PotionStation : MonoBehaviour
                 }
                 else
                 {
-                    Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, ShadowRealmPotionSpawnTransform, false);
+                    Spawned_ShadowRealm_Prefab = GameObject.Instantiate(ShadowRealm_Prefab, PotionSpawnTransform, false);
 
                 }
                 player.SetPotion(Spawned_ShadowRealm_Prefab, recipeName_current);
@@ -282,6 +299,8 @@ public class PotionStation : MonoBehaviour
         else
         {
             ImageToOutput = Image_None;
+            source.clip = outputSound;
+            source.Play();
         }
 
         Output.GetComponent<Image>().sprite = ImageToOutput;

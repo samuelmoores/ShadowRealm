@@ -8,10 +8,13 @@ public class PotionLedger : MonoBehaviour
 {
     public GameObject PosionOrder;
     public GameObject EncrpyptionAlphabet_Display;
+    public AudioClip openSound;
+
     [HideInInspector] public string encryptionAlphabet_display;
     [HideInInspector] public string alphabet_display;
     [HideInInspector] public string encryptionAlphabet;
     [HideInInspector] public string encryptedMessage;
+    AudioSource source;
 
     string decryptedMessage;
     
@@ -22,6 +25,8 @@ public class PotionLedger : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        source = GetComponent<AudioSource>();
+
         for(int i = 0; i < 26; i++)
         {
             alphabet_display += "[" + (i + 1) + "]" + alphabet[i] + "\n";
@@ -33,23 +38,28 @@ public class PotionLedger : MonoBehaviour
         EncryptAlphabet();
 
         //get message
-        decryptedMessage = "SILKWORM ROCKCRYSTAL COPPER";
+        decryptedMessage = "COW DUNG\nSILK WORM\nROCK CRYSTAL\n";
 
         EncryptMessage(decryptedMessage);
 
 
     }
 
+
     private void EncryptMessage(string message)
     {
         //loop through message
         for (int i = 0; i < message.Length; i++)
         {
-            if (message[i] != ' ')
-            {
-                //get first character of message
-                char characterToFind = message[i];
+            //get character of message
+            char characterToFind = message[i];
 
+            if (message[i] == '\n' || message[i] == ' ')
+            {
+                encryptedMessage += message[i];
+            }
+            else
+            {
                 //loop through scrambled alphabet
                 for (int j = 0; j < encryptionAlphabet.Length; j++)
                 {
@@ -91,7 +101,6 @@ public class PotionLedger : MonoBehaviour
             encryptionAlphabet += alphabet[usedIndex[i]];
             encryptionAlphabet_display += "[" + (i + 1) + "]" + alphabet[usedIndex[i]] + "\n";
             numberValid = false;
-            Debug.Log(encryptionAlphabet);
         }
     }
 
@@ -109,6 +118,8 @@ public class PotionLedger : MonoBehaviour
         {
             PosionOrder.SetActive(true);
             EncrpyptionAlphabet_Display.SetActive(true);
+            source.clip = openSound;
+            source.Play();
         }
     }
 

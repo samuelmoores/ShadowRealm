@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
+using static Unity.VisualScripting.Member;
 
 public class Enemy : MonoBehaviour
 {
     //---------public---------------
     public GameObject Chest;
     public float damageTimer;
-    public float attackCoolDown;
+    public float attackCoolDown; 
+    public AudioClip[] footsteps;
+    public AudioClip[] grunts;
+
+    int previousFootstep;
+    int previousGrunt;
 
     //-----------Components------------
     CharacterController control;
@@ -17,12 +23,17 @@ public class Enemy : MonoBehaviour
     Animator animator;
     NavMeshAgent agent;
     Rigidbody[] ragdollColliders;
+    AudioSource source;
 
     //------------Damage-------------
     float damageTimer_current;
     bool damaged;
     float health;
     bool isDead;
+    float gruntTimerDefault;
+    float gruntTimer;
+    float gruntSoundTime;
+    bool isGrunting;
 
     //-------AI---------
     float velocity;
@@ -42,6 +53,7 @@ public class Enemy : MonoBehaviour
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         control = GetComponent<CharacterController>();
+        source = GetComponent<AudioSource>();
 
         ragdollColliders = this.gameObject.GetComponentsInChildren<Rigidbody>();
 
@@ -54,6 +66,7 @@ public class Enemy : MonoBehaviour
         damaged = false;
         damageTimer_current = damageTimer;
         health = 1.0f;
+        isGrunting = false;
 
         //Ai
         distanceFromPlayer = 100.0f;
@@ -79,7 +92,16 @@ public class Enemy : MonoBehaviour
                 startTimer -= Time.deltaTime;
             }
 
-            if (distanceFromPlayer < 10.0f)
+            if(isGrunting)
+            {
+                gruntTimer -= Time.deltaTime;
+                if(gruntTimer <= 0.0f)
+                {
+                    isGrunting = false;
+                }
+            }
+
+            if (distanceFromPlayer < 100.0f)
             {
 
                 Move();
@@ -245,6 +267,14 @@ public class Enemy : MonoBehaviour
                 {
                     damaged = true;
                     animator.SetTrigger("Damage");
+
+                    if(!isGrunting && gruntTimer <= 0.0f)
+                    {
+                        Grunt();
+                        isGrunting = true;
+                        gruntTimer = source.clip.length;
+                    }
+                    
                     health -= damageAmount;
                     player.SetInflictDamage(0);
                 }
@@ -277,6 +307,36 @@ public class Enemy : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void FootStep()
+    {
+        if(distanceFromPlayer < 20.0f)
+        {
+            int footStep = Random.Range(0, 4);
+            while (footStep == previousFootstep)
+            {
+                footStep = Random.Range(0, 4);
+            }
+            source.clip = footsteps[footStep];
+            source.volume = 0.20f;
+            source.Play();
+            previousFootstep = footStep;
+        }
+        
+    }
+
+    public void Grunt()
+    {
+        int grunt = Random.Range(0, 23);
+        while (grunt == previousGrunt)
+        {
+            grunt = Random.Range(0, 23);
+        }
+        source.clip = grunts[grunt];
+        source.volume = 0.50f;
+        source.Play();
+        previousGrunt = grunt;
     }
 
     private void EnableRagdoll()
