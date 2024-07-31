@@ -296,7 +296,7 @@ public class Enemy : MonoBehaviour
 
                     if(gameObject.tag == "DungeonGuard")
                     {
-                        GameObject.Find("Cage").GetComponent<Cage>().Open();
+                        GameObject.Find("MinionCage").GetComponent<Cage>().Open();
 
                     }
 

@@ -589,6 +589,11 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("KingShadowFist") && !dodgeRolling)
         {
             hit = true;
+            if(identityShadowed)
+            {
+                AudioSource.PlayClipAtPoint(activateShadowRealmSound, transform.position);
+
+            }
         }
 
         if (other.CompareTag("Respawn"))
